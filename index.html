@@ -72,7 +72,7 @@
 					onclick="sessionStorage.setItem('state','register'); member();" type="button">Create Account
 			</button>
 		</form>
-		<form name="sign_up_form" class="form-signin" action="" id="registration-form"
+		<form name="sign_up_form" class="form-signin" action="javascript:{addUser()}" id="registration-form"
 				style="display: none;">
 			<h2 class="form-signin-heading">Registration</h2>
 			<div class="form-check text-center">
@@ -145,46 +145,46 @@
 					<div class="form-group row">
 						<label for="pr_uname" class="col-sm-6 col-md-4 col-lg-2 col-form-label">User Name: </label>
 						<div class="col-sm-12 col-md-8 col-lg-10">
-							<input onchange="update_profile('user_name', this.value)"
+							<input onchange="update_profile('UserName', this.value)"
 									 class="form-control outline-success text-success" type="text" value="" id="pr_uname"
-									 name="pr_uname">
+									 name="UserName">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label for="pr_email" class="col-sm-6 col-md-4 col-lg-2 col-form-label">Email: </label>
 						<div class="col-sm-12 col-md-8 col-lg-10">
-							<input class="form-control" type="text" value="" id="pr_email" name="pr_email" disabled>
+							<input class="form-control" type="text" value="" id="pr_email" name="Email" disabled>
 						</div>
 					</div>
 					<div class="form-group row">
 						<label for="pr_first_name" class="col-sm-6 col-md-4 col-lg-2 col-form-label">First Name</label>
 						<div class="col-sm-12 col-md-8 col-lg-10">
-							<input onchange="update_profile('full_name', this.value)"
+							<input onchange="update_profile('First_Name', this.value)"
 									 class="form-control text-success card-outline-success" type="text" value=""
-									 name="pr_first_name" id="pr_first_name">
+									 name="First_Name" id="pr_first_name">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label for="pr_last_name" class="col-sm-6 col-md-4 col-lg-2 col-form-label">Last Name</label>
 						<div class="col-sm-12 col-md-8 col-lg-10">
-							<input onchange="update_profile('full_name', this.value)"
+							<input onchange="update_profile('Last_Name', this.value)"
 									 class="form-control text-success card-outline-success" type="text" value=""
-									 name="pr_last_name" id="pr_last_name">
+									 name="Last_Name" id="pr_last_name">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label for="pr_org" class="col-sm-6 col-md-4 col-lg-2 col-form-label">KRA PIN: </label>
 						<div class="col-sm-12 col-md-8 col-lg-10">
-							<input onchange="update_profile('krapin', this.value)"
+							<input onchange="update_profile('KRA_PIN', this.value)"
 									 class="form-control text-success card-outline-success" type="text" value=""
-									 name="pr_org" id="pr_org">
+									 name="KRA_PIN" id="pr_kra_pin">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label for="pr_address" class="col-sm-6 col-md-4 col-lg-2 col-form-label">Address</label>
 						<div class="col-12">
-							<textarea onchange="update_profile('address', this.value)"
-										class="form-control text-success card-outline-success" name="pr_address"
+							<textarea onchange="update_profile('Address', this.value)"
+										class="form-control text-success card-outline-success" name="Address"
 										type="text" id="pr_address"></textarea>
 						</div>
 					</div>
@@ -205,7 +205,7 @@
 							</button>
 						</div>
 						<div class="modal-body">
-							<form name="update_password">
+							<form name="update_password" action="javascript:{change_password();}">
 								<div class="form-group">
 									<label for="old_pass" class="form-control-label">Old Password:</label>
 									<input type="password" name="old_password" class="form-control" id="old_pass">
@@ -492,7 +492,7 @@
 <script src="script/ie10-viewport-bug-workaround.js">
 </script>
 
-
+<script src="script/ajax.js"></script>
 <script src="script/js.js"></script>
 </body>
 </html>

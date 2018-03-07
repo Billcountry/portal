@@ -2,6 +2,9 @@
 /*
  * This is the API that will be used to interact between the database and the front end
  */
+if(isset($_POST['debug']) || isset($_GET['debug']))
+    ini_set("display_errors","on");
+
 session_start();
 class Api{
 	private $conn;
@@ -93,8 +96,6 @@ class Api{
 						if($result->num_rows){
 							// Get the results
 							$profile = $result->fetch_assoc();
-							// Generate a token to be used for authentication
-							$token = $this->random_string(16);
 							$user_id = $profile['ID'];
 							$message = array("profile"=>$profile, "user_id"=>$user_id);
 							$success = true;
@@ -132,9 +133,9 @@ class Api{
             if ($this->check_array(['user_id', 'user_type', 'logged_in'], $_SESSION)) {
                     $stmt = $this->conn->stmt_init();
                     if ($_SESSION['user_type'] == 'landlord') {
-                        $stmt->prepare("UPDATE landlord SET Password=? WHERE Password=? ID={$_SESSION['user_id']}");
+                        $stmt->prepare("UPDATE landlord SET Password=? WHERE Password=? AND ID={$_SESSION['user_id']}");
                     } else {
-                        $stmt->prepare("UPDATE tenant SET Password=? WHERE Password=? ID={$_SESSION['user_id']}");
+                        $stmt->prepare("UPDATE tenant SET Password=? WHERE Password=? AND ID={$_SESSION['user_id']}");
                     }
                     $old = sha1($_POST['old_password']);
                     $new = sha1($_POST['new_password']);

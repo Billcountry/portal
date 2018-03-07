@@ -122,6 +122,55 @@ class Api{
 		return array("success"=>false, "error"=>$message);
 	}
 
+	function change_password(){
+        $variables = ['new_password', 'old_password'];
+        $success = false;
+        $message = null;
+        // Check whether all data was sent
+        if($this->check_array($variables, $_POST)) {
+            // Check whether the user is logged in
+            if ($this->check_array(['user_id', 'user_type', 'logged_in'], $_SESSION)) {
+                    $stmt = $this->conn->stmt_init();
+                    if ($_SESSION['user_type'] == 'landlord') {
+                        $stmt->prepare("UPDATE landlord SET Password=? WHERE Password=? ID={$_SESSION['user_id']}");
+                    } else {
+                        $stmt->prepare("UPDATE tenant SET Password=? WHERE Password=? ID={$_SESSION['user_id']}");
+                    }
+                    $old = sha1($_POST['old_password']);
+                    $new = sha1($_POST['new_password']);
+                    if($stmt->bind_param('ss',$new,$old)){
+                        if($stmt->execute()){
+                            if($stmt->affected_rows>0){
+                                $success = true;
+                                $message = "Password updated successfully";
+                            }else{
+                                $message = "Wrong password";
+                            }
+                        }else{
+                            $message = $stmt->error;
+                        }
+                    }else{
+                        $message = $stmt->error;
+                    }
+            }else{
+                $message = "You must be logged in to perform this action";
+            }
+        }else{
+            $message = "Missing required parameters: ['old_password', 'new_password']";
+        }
+        if($success){
+            return array("success"=>true, "message"=>$message);
+        }
+        return array("success"=>false, "error"=>$message);
+    }
+
+	function logout(){
+        if(session_destroy()){
+            return array("success"=>true, "message"=>"User logged out successfully");
+        }
+        return array("success"=>false, "error"=>"Session Error");
+    }
+
 	function update_profile(){
 		$variables = ['field', 'value'];
 		$success = false;
@@ -259,11 +308,89 @@ class Api{
     }
 
     function houses(){
-
+        $success = false;
+        if(isset($_POST['plot'])){
+            // Determine whether to present the houses to a landlord or tenant
+            $user_type = 'tenant';
+            if(isset($_SESSION['logged_in'], $_SESSION['user_id']))
+                if($_SESSION['user_type'] == 'landlord')
+                    if($this->check_plot($_POST['plot']))
+                        $user_type = 'landlord';
+            $stmt = $this->conn->stmt_init();
+            $preped = true;
+            if($user_type == 'landlord'){
+                // Get all the houses in that plot
+                $stmt->prepare("SELECT ID type, monthly_rent, booking_amount, description, status, photo FROM houses WHERE plot={$_POST['plot']}");
+            }else{
+                // Get the vacant houses in the plot
+                $stmt->prepare("SELECT ID type, monthly_rent, booking_amount, description, status, photo FROM houses WHERE plot=? AND status='vacant'");
+                if(!$stmt->bind_param('i', $_POST['plot']))
+                    $preped = false;
+            }
+            if($preped) {
+                if ($stmt->execute()) {
+                    if ($result=$stmt->get_result()) {
+                        $message = [];
+                        $success = true;
+                        while ($row=$result->fetch_assoc())
+                            array_push($message, $row);
+                    }else{
+                        $message = $stmt->error;
+                    }
+                }else{
+                    $message = $stmt->error;
+                }
+            }else{
+                $message = $stmt->error;
+            }
+        }else{
+            $message = "Please provide all the required variables, i.e. ['plot']";
+        }
+        if($success){
+            return array("success"=>true, "houses"=>$message);
+        }
+        return array("success"=>false, "error"=>$message);
     }
 
     function plots(){
-
+        $success = false;
+        $stmt = $this->conn->stmt_init();
+        // Determine whether to present the plots to a landlord or tenant
+        $user_type = 'tenant';
+        if(isset($_SESSION['logged_in'], $_SESSION['user_id']))
+            if($_SESSION['user_type'] == 'landlord')
+                $user_type = 'landlord';
+        if($user_type=='landlord'){
+            $stmt->prepare("SELECT ID, name, description, county, Constituency, Ward, Town, photo FROM plots WHERE landlord={$_SESSION['user_id']}");
+        }else{
+            // Only select approved plots that have vacant houses
+            $stmt->prepare("
+                SELECT DISTINCT(plot) AS ID, name, plots.description AS description,
+                county, Constituency, Ward, Town, plots.photo AS photo
+                FROM houses 
+                INNER JOIN plots ON houses.plot = plots.ID
+                WHERE status='vacant' AND approved=TRUE 
+            ");
+        }
+        // Execute the statement and return the results
+        if($stmt->execute()){
+            if($result=$stmt->get_result()){
+                $message = [];
+                $success = true;
+                // Fetch each row and add it to message
+                while($row = $result->fetch_assoc()){
+                    array_push($message, $row);
+                }
+            }else{
+                $message = $stmt->error;
+            }
+        }else{
+            $message = $stmt->error;
+        }
+        if($success){
+            return array("success"=>true, "plots"=>$message);
+        }
+        return array("success"=>false, "error"=>$message);
     }
 
     function upload_image($file){
@@ -312,10 +439,22 @@ function main(){
 	switch($action){
 		case "login":
 			return $api->login();
+		case "logout":
+			return $api->logout();
+		case "change_password":
+			return $api->change_password();
 		case "update_details":
 			return $api->update_profile();
 		case "register":
 			return $api->add_user();
+		case "add_plot":
+			return $api->create_property();
+		case "add_house":
+			return $api->create_house();
+		case "plots":
+			return $api->plots();
+		case "houses":
+			return $api->houses();
 		default:
 			return array("success"=>false, "error"=>"Unknown action specified, please retry");
 	}

@@ -49,56 +49,61 @@
 			<h2 class="form-signin-heading">Please sign in...</h2>
 			<div id="sign_in_errors"></div>
 			<label for="login_email" class="sr-only">Email address</label>
-			<input type="email" name="email" id="login_email" class="form-control text-success"
+			<input type="email" name="Email" id="login_email" class="form-control text-success"
 					 placeholder="Email address" required>
 			<label for="login_password" class="sr-only">Password</label>
-			<input type="password" name="password" id="login_password" class="form-control text-success"
+			<input type="password" name="Password" id="login_password" class="form-control text-success"
 					 placeholder="Password" required>
-			<div class="checkbox">
+			<div class="form-check text-center">
 				<label>
-					<input type="checkbox" name="keep"> Remember me
+					<input type="radio" name="UserType" value="tenant" checked> Tenant
+				</label>
+				&nbsp;&nbsp;&nbsp;
+				<label>
+					<input type="radio" name="UserType" value="landlord"> Landlord
 				</label>
 			</div>
 			<input class="btn btn-outline-success btn-block" type="submit" value="Sign in">
 			<br>
-			<a class="text-primary" onclick="localStorage.setItem('state','reset-password'); member();">Forgot
+			<a class="text-primary" onclick="sessionStorage.setItem('state','reset-password'); member();">Forgot
 				Password?</a>
 			<h6 class="text-center">or</h6>
 			<button class="btn btn-sm btn-outline-success btn-block"
-					onclick="localStorage.setItem('state','register'); member();" type="button">Create Account
+					onclick="sessionStorage.setItem('state','register'); member();" type="button">Create Account
 			</button>
 		</form>
-		<form name="sign_up_form" class="form-signin" action="javascript:{addUser()}" id="registration-form"
+		<form name="sign_up_form" class="form-signin" action="" id="registration-form"
 				style="display: none;">
 			<h2 class="form-signin-heading">Registration</h2>
-			<div id="sign_up_errors"></div>
-			<label for="reg_user_type" class="">Register As</label>
-			<select name="user_type" id="reg_user_type" class="form-control text-success"
-					required>
-				<option value="tenant">Tenant</option>
-				<option value="landlord">Landlord</option>
-			</select>
+			<div class="form-check text-center">
+				<label>
+					<input type="radio" name="UserType" value="tenant" checked> Tenant
+				</label>
+				&nbsp;&nbsp;&nbsp;
+				<label>
+					<input type="radio" name="UserType" value="landlord"> Landlord
+				</label>
+			</div>
 			<label for="reg_user" class="sr-only">User Name</label>
-			<small class="form-text text-muted">This is the name visible to the public.</small>
-			<input name="user_name" type="text" id="reg_user" class="form-control text-success" placeholder="User Name"
+			<input name="UserName" type="text" id="reg_user" class="form-control text-success" placeholder="User Name"
 					 required>
 			<label for="reg_first_name" class="sr-only">First Name</label>
-			<input type="text" name="first_name" id="reg_first_name" class="form-control text-success" placeholder="First Name"
+			<input type="text" name="First_Name" id="reg_first_name" class="form-control text-success" placeholder="First Name"
 					 required>
 			<label for="reg_last_name" class="sr-only">Last Name</label>
-			<input type="text" name="last_name" id="reg_last_name" class="form-control text-success" placeholder="Last Name"
+			<input type="text" name="Last_Name" id="reg_last_name" class="form-control text-success" placeholder="Last Name"
 					 required>
 			<label for="reg_mail" class="sr-only">Email address</label>
-			<input type="email" name="email" id="reg_mail" class="form-control text-success" placeholder="Email address"
+			<input type="email" name="Email" id="reg_mail" class="form-control text-success" placeholder="Email address"
 					 required>
 			<label for="reg_address" class="sr-only">Address</label>
-			<input type="text" name="address" id="reg_address" class="form-control text-success" placeholder="Address"
+			<input type="text" name="Address" id="reg_address" class="form-control text-success" placeholder="Address"
 					 required>
 			<label for="reg_kra_pin" class="sr-only">KRA Pin</label>
-			<input type="text" name="krapin" id="reg_kra_pin" class="form-control text-success" placeholder="Address"
+			<input type="text" name="KRA_PIN" id="reg_kra_pin" class="form-control text-success" placeholder="KRA PIN"
 					 required>
 			<label for="reg_pass" class="sr-only">Password</label>
-			<input type="password" name="password" id="reg_pass" class="form-control text-success"
+			<input type="password" name="Password" id="reg_pass" class="form-control text-success"
 					 placeholder="Password" required>
 			<label for="reg_pass_confirm" class="sr-only">Confirm Password</label>
 			<input type="password" name="confirmation_pw" id="reg_pass_confirm" class="form-control text-success"
@@ -108,22 +113,23 @@
 					<input type="checkbox" name="accept_terms" value="remember-me">I accept the terms and conditions
 				</label>
 			</div>
+			<div id="sign_up_errors"></div>
 			<input class="btn	btn-outline-success btn-block" value="Complete Registration" type="submit">
 			<h6 class="text-center">or</h6>
 			<button class="btn btn-sm btn-outline-success btn-block"
-					onclick="localStorage.setItem('state','guest'); member();" type="submit">&larr; Sign In
+					onclick="sessionStorage.setItem('state','guest'); member();" type="submit">&larr; Sign In
 			</button>
 		</form>
 		<form class="form-signin" id="reset-password" action="javascript:{reset_password()}" name="confirm_email">
 			<h3 class="form-signin-heading">Reset Password</h3>
 			<p class="small">Enter the email you used to register your account below:</p>
 			<label class="sr-only" for="reset_email">Registered Email: </label>
-			<input type="email" id="reset_email" class="form-control text-success" name="email"
+			<input type="email" id="reset_email" class="form-control text-success" name="Email"
 					 placeholder="Registered Email" required>
 			<div id="password_reset_error"></div>
 			<input class="btn btn-outline-success btn-block" type="submit" value="Submit">
 			<button class="btn btn-sm btn-outline-success btn-block"
-					onclick="localStorage.setItem('state','guest'); member();" type="submit">&larr; Sign In
+					onclick="sessionStorage.setItem('state','guest'); member();" type="submit">&larr; Sign In
 			</button>
 		</form>
 		<div id="user-dash" class="card">
@@ -199,18 +205,18 @@
 							</button>
 						</div>
 						<div class="modal-body">
-							<form name="quiz_form">
+							<form name="update_password">
 								<div class="form-group">
 									<label for="old_pass" class="form-control-label">Old Password:</label>
-									<input type="password" class="form-control" id="old_pass">
+									<input type="password" name="old_password" class="form-control" id="old_pass">
 								</div>
 								<div class="form-group">
 									<label for="new_pass" class="form-control-label">New Password:</label>
-									<input type="password" class="form-control" id="new_pass">
+									<input type="password" name="new_password" class="form-control" id="new_pass">
 								</div>
 								<div class="form-group">
 									<label for="conf_pass" class="form-control-label">Confirm Password:</label>
-									<input type="password" class="form-control" id="conf_pass">
+									<input type="password" name="confirmation" class="form-control" id="conf_pass">
 								</div>
 								<div id="pass_change_errors">
 

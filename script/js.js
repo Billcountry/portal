@@ -11,27 +11,27 @@ function change_password() {
     var newp = document.querySelector("#new_pass").value;
     var conf = document.querySelector("#conf_pass").value;
     if(newp.length <8) {
-        $.ajax({
-            url: "api.php",
-            type: "POST",
-            data: {
-                action: "change_password",
-                token: localStorage.getItem("token"),
-                old_pass: old,
-                new_pass: newp,
-                conf_pass: conf
-            },
-            dataType: "json",
-            success: function (response) {
-                if (response.success) {
-
-                    $('#password_modal').modal('hide');
-                    Add_success(response.message, "pass_change_errors", false);
-                } else {
-                    Add_error(response.message, "pass_change_errors", false);
+        if(newp === conf) {
+            $.ajax({
+                url: "/api?action=change_password",
+                type: "POST",
+                data: {
+                    old_password: old,
+                    new_password: newp
+                },
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        $('#password_modal').modal('hide');
+                        Add_success(response.message, "pass_change_errors", false);
+                    } else {
+                        Add_error(response.error, "pass_change_errors", false);
+                    }
                 }
-            }
-        });
+            });
+        }else{
+            Add_error("Passwords do not match", "pass_change_errors", false);
+        }
     }else{
         Add_error("Password too short", "pass_change_errors", false);
     }
@@ -143,61 +143,55 @@ function Clear(location)
     }
 }
 
-function addUser() {
-    var form = document.forms.sign_up_form;
-    var u_type = form.user_type.value;
-    var u_name = form.user_name.value;
-    var first_name = form.first_name.value;
-    var last_name = form.last_name.value;
-    var email = form.email.value;
-    var krapin = form.krapin.value;
-    var address = form.address.value;
-    var pass = form.password.value;
-    var pass_conf = form.confirmation_pw.value;
-    var terms = form.accept_terms.checked;
-    if(terms){
-        /*
-        $.ajax({
-            type: "POST",
-            url: "api.php",
-            data: {
-                action: "add-user",
-                user_type: u_type,
-                user_name: u_name,
-                first_name: first_name,
-                last_name: last_name,
-                email: email,
-                krapin: krapin,
-                address: address,
-                password: pass,
-                confirmation_pw: pass_conf,
-                accept_terms: terms
-            },
-            dataType: "json",
-            success: function (response) {
-                if(response.success){
-                    localStorage.setItem("token", response.user.token);
-                    localStorage.setItem("user_id", response.user.user_id);
-                    localStorage.setItem("user", response.user.user);
-                    localStorage.setItem("email", response.user.email);
-                    localStorage.setItem("state", response.user.state);
-                    member();
-                }else{
-                    Add_error(response.message, "sign_up_errors",false);
-                }
+// Prevent the default action when the form submits and do your own
+$("form[name='sign_up_form']").submit(function(e){
+    e.preventDefault();
+    try {
+        var form = document.querySelector("#registration-form");
+        var formdata = new FormData(form);
+        formdata.append("action","register");
+        console.log(formdata);
+        console.log(formdata.getAll('UserType'));
+        var pass = form.Password.value;
+        var pass_conf = form.confirmation_pw.value;
+        var terms = form.accept_terms.checked;
+        if (terms) {
+            if (pass === pass_conf) {
+                $.ajax({
+                    type: "POST",
+                    url: "api",
+                    data: formdata,
+                    enctype: 'multipart/form-data',
+                    cache: false,
+                    processData: false, // Required when using formdata
+                    contentType: false, // Required when using formdata
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            Toast(response.message, TOAST_SHORT);
+                            // Redirect the user to login
+                            sessionStorage.setItem('state', 'guest');
+                            member();
+                        } else {
+                            console.log(response);
+                            Add_error(response.error, "sign_up_errors", false);
+                        }
+                    }
+                });
+            } else {
+                Add_error("Passwords do not match", "sign_up_errors", true);
             }
-        });
-        */
-        localStorage.setItem('state','normal');
-        member();
-    }else{
-        Add_error("<strong>You must accept the terms and conditions of Agripedia before you continue</strong>","sign_up_errors",true);
+        } else {
+            Add_error("You must accept the terms and conditions before you continue", "sign_up_errors", false);
+        }
+    }catch(e){
+        window.open("http://stackoverflow.com/search?q=[js]+"+e.message,'_blank');
     }
-}
+});
 
 function Resendconf(){
-    var token = localStorage.getItem("token");
-    var job = add_job("Sending mail...")
+    var token = sessionStorage.getItem("token");
+    var job = add_job("Sending mail...");
     $.ajax({
         url: "api.php",
         type: "POST",
@@ -218,7 +212,7 @@ function Resendconf(){
 }
 
 function refresh_logged() {
-    var token = localStorage.getItem("token");
+    var token = sessionStorage.getItem("token");
     if(token !== undefined && token !== null){
         $.ajax({
             url: "api.php",
@@ -229,55 +223,54 @@ function refresh_logged() {
             },
             success: function (response) {
                 if(response.success){
-                    localStorage.setItem("token", response.user.token);
-                    localStorage.setItem("user_id", response.user.user_id);
-                    localStorage.setItem("user", response.user.user);
-                    localStorage.setItem("email", response.user.email);
-                    localStorage.setItem("state", response.user.state);
+                    sessionStorage.setItem("token", response.user.token);
+                    sessionStorage.setItem("user_id", response.user.user_id);
+                    sessionStorage.setItem("user", response.user.user);
+                    sessionStorage.setItem("email", response.user.email);
+                    sessionStorage.setItem("state", response.user.state);
                     document.querySelector("#mlink").innerHTML = response.user.user;
                 }else{
-                    localStorage.clear();
+                    sessionStorage.clear();
                     console.log(response.message);
                     document.querySelector("#mlink").innerHTML = "Members";
                 }
             }
         });
     }else{
-        localStorage.clear();
+        sessionStorage.clear();
         document.querySelector("#mlink").innerHTML = "Members";
     }
 }
 
 function login() {
     var form = document.forms.login_form;
-    var email = form.email.value;
-    var pass = form.password.value;
-    var rem = form.keep.checked;
-    localStorage.setItem('state','normal');
+    // Convert the form to multipart formdata for submission
+    var formdata = new FormData(form);
+    var user_type = form.UserType.value;
     member();
-    // $.ajax({
-    //     type: "POST",
-    //     url: "api.php",
-    //     data: {
-    //         action: "login",
-    //         email: email,
-    //         password: pass,
-    //         remember: rem
-    //     },
-    //     dataType: "json",
-    //     success: function (response) {
-    //         if(response.success){
-    //             localStorage.setItem("token", response.user.token);
-    //             localStorage.setItem("user_id", response.user.user_id);
-    //             localStorage.setItem("user", response.user.user);
-    //             localStorage.setItem("email", response.user.email);
-    //             localStorage.setItem("state", response.user.state);
-    //             member();
-    //         }else{
-    //             Add_error(response.message, "sign_in_errors",false);
-    //         }
-    //     }
-    // });
+    $.ajax({
+        type: "POST",
+        url: "/api?action=login",
+        data: formdata,
+        dataType: "json",
+        success: function (response) {
+            if(response.success){
+                sessionStorage.setItem('state','normal');
+                var profile = response.user.profile;
+                for(var key in profile){
+                    // Save the profile sent as part of the browser's data
+                    sessionStorage.setItem(key, profile[key]);
+                }
+                member();
+            }else{
+                Add_error(response.error, "sign_in_errors",false);
+            }
+        },
+        error: function (error) {
+            Add_error("Anknown error occured", "sign_in_errors",false);
+            console.log(error);
+        }
+    });
 }
 
 function Numbersonly(evt){
@@ -314,8 +307,8 @@ function reset_password(){
 
 function logout() {
     console.log("Logging out");
-    var token = localStorage.getItem("token");
-    localStorage.setItem('state','guest');
+    var token = sessionStorage.getItem("token");
+    sessionStorage.setItem('state','guest');
     member();
     /*
     $.ajax({
@@ -327,7 +320,7 @@ function logout() {
         },
         dataType: "json",
         success: function (response) {
-            localStorage.clear();
+            sessionStorage.clear();
             Toast(response.message,6);
             document.querySelector("#mlink").innerHTML = "Member";
                 member();
@@ -344,7 +337,7 @@ function confirm_email() {
     var job = add_job("Confiming email...");
     console.log("Confiming email...");
     var c_code = document.querySelector("#confirmation_code").value;
-    var token = localStorage.getItem("token");
+    var token = sessionStorage.getItem("token");
     $.ajax({
         url: "api.php",
         type: "POST",
@@ -356,11 +349,11 @@ function confirm_email() {
         dataType: "json",
         success: function (response) {
             if(response.success){
-                localStorage.setItem("token", response.user.token);
-                localStorage.setItem("user_id", response.user.user_id);
-                localStorage.setItem("user", response.user.user);
-                localStorage.setItem("email", response.user.email);
-                localStorage.setItem("state", response.user.state);
+                sessionStorage.setItem("token", response.user.token);
+                sessionStorage.setItem("user_id", response.user.user_id);
+                sessionStorage.setItem("user", response.user.user);
+                sessionStorage.setItem("email", response.user.email);
+                sessionStorage.setItem("state", response.user.state);
                 member();
             }else{
                 Add_error(response.message,"email_confirm_error",false);
@@ -384,7 +377,7 @@ function update_profile(field, value){
         type: "POST",
         data: {
             action: "update-profile",
-            token: localStorage.getItem("token"),
+            token: sessionStorage.getItem("token"),
             field: field,
             value: value
         },
@@ -404,7 +397,7 @@ function personal_profile(){
         url: "api.php",
         type: "POST",
         data: {
-            token: localStorage.getItem("token"),
+            token: sessionStorage.getItem("token"),
             action: "personal-profile"
         },
         dataType: "json",
@@ -426,7 +419,7 @@ function personal_profile(){
                         }
                     }
                 }
-                localStorage.setItem("user", response.user.user_name);
+                sessionStorage.setItem("user", response.user.user_name);
             }else{
                 console.log(response.message);
             }
@@ -446,7 +439,7 @@ function member() {
     menu("#m_member");
     hide_all();
     document.querySelector("#member").style.display = "block";
-    var memberstate = localStorage.getItem("state");
+    var memberstate = sessionStorage.getItem("state");
     if(memberstate === undefined || memberstate === null){
         memberstate = "guest";
     }

@@ -145,3 +145,25 @@ a:hover{
     width: auto;
     border: 1px solid #5cb85c;
 }
+
+.tenant, .landlord{
+    display: inherit;
+}
+
+
+.toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }
+.toggle.ios .toggle-handle { border-radius: 20px; }
+.thumbnail {
+    position: relative;
+}
+
+.caption {
+    position: absolute;
+    top: 45%;
+    left: 0;
+    width: 100%;
+}
+
+.white-shadow{
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.6);
+}

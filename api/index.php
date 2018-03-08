@@ -394,6 +394,59 @@ class Api{
         return array("success"=>false, "error"=>$message);
     }
 
+    function locations(){
+        $success = false;
+        $message = array();
+        $stmt = $this->conn->prepare("SELECT id, County FROM counties");
+        if($stmt->execute()){
+            if($result = $stmt->get_result()){
+                $counties = [];
+                while ($row = $result->fetch_assoc())
+                    array_push($counties, $row);
+                $stmt->close();
+                $stmt = $this->conn->prepare("SELECT id, SubCounty FROM sub_counties");
+                if($stmt->execute()) {
+                    if ($result = $stmt->get_result()) {
+                        $constituencies = [];
+                        while ($row = $result->fetch_assoc())
+                            array_push($constituencies, $row);
+                        $stmt->close();
+                        $stmt = $this->conn->prepare("SELECT id, Ward FROM wards");
+                        if($stmt->execute()) {
+                            if ($result = $stmt->get_result()) {
+                                $wards = [];
+                                while ($row = $result->fetch_assoc())
+                                    array_push($wards, $row);
+                                $stmt->close();
+                                $success = true;
+                                $message["counties"] = $counties;
+                                $message["constituencies"] = $constituencies;
+                                $message["wards"] = $wards;
+                            }else{
+                                $message = $stmt->error;
+                            }
+                        }else{
+                            $message = $stmt->error;
+                        }
+                    }else{
+                        $message = $stmt->error;
+                    }
+                }else{
+                    $message = $stmt->error;
+                }
+            }else{
+                $message = $stmt->error;
+            }
+        }else{
+            $message = $stmt->error;
+        }
+
+        if($success){
+            return array("success"=>true, "location"=>$message);
+        }
+        return array("success"=>false, "error"=>$message);
+    }
+
     function upload_image($file){
         if(isset($_FILES[$file])) {
             $name = $_FILES[$file]['name'];
@@ -437,28 +490,36 @@ function main(){
 	if(isset($_GET['action'])){
 		$action = $_GET['action'];
 	}
-	switch($action){
-		case "login":
-			return $api->login();
-		case "logout":
-			return $api->logout();
-		case "change_password":
-			return $api->change_password();
-		case "update_details":
-			return $api->update_profile();
-		case "register":
-			return $api->add_user();
-		case "add_plot":
-			return $api->create_property();
-		case "add_house":
-			return $api->create_house();
-		case "plots":
-			return $api->plots();
-		case "houses":
-			return $api->houses();
-		default:
-			return array("success"=>false, "error"=>"Unknown action specified, please retry");
-	}
+	// Catch any errors that might occur during the execution
+    try {
+        switch ($action) {
+            case "login":
+                return $api->login();
+            case "logout":
+                return $api->logout();
+            case "change_password":
+                return $api->change_password();
+            case "update_details":
+                return $api->update_profile();
+            case "location":
+                return $api->locations();
+            case "register":
+                return $api->add_user();
+            case "add_plot":
+                return $api->create_property();
+            case "add_house":
+                return $api->create_house();
+            case "plots":
+                return $api->plots();
+            case "houses":
+                return $api->houses();
+            default:
+                return array("success" => false, "error" => "Unknown action specified, please retry");
+        }
+    }catch (Exception $exception){
+        return array("success" => false, "error" => "System Error on: {$exception->getFile()} line({$exception->getLine()})
+        \n<br>{$exception->getMessage()}");
+    }
 }
 
 // Tell the user's browser that this api returns JSON formatted content

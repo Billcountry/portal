@@ -457,7 +457,62 @@ function member() {
         document.querySelector("#reset-password").style.display = "none";
         document.querySelector("#user-dash").style.display = "block";
     }
+    display_controls();
 }
+
+var display_controls = function(){
+    var user_type = sessionStorage.getItem("user_type");
+    if(user_type === undefined || user_type === null){
+        user_type = "tenant";
+    }
+    // Get all the items with class landlord and tenant
+    var landlord_items = document.querySelectorAll(".landlord");
+    var tenant_items = document.querySelectorAll(".tenant");
+    // Hide landlord or tenant items accordingly
+    var i;
+    var item;
+    if(user_type === "tenant"){
+        // Hide all items with the class landlord
+        for(i in landlord_items){
+            item = landlord_items[i];
+            // Confirm that the item really exists. Javascript can be mad sometimes
+            if(item.classList !== undefined){
+                // Hide the items
+                item.classList.add('d-none');
+            }
+        }
+        // Show all tenants
+        for(i in tenant_items){
+            item = tenant_items[i];
+            if(item.classList !== undefined){
+                // Check whether the item was hidden and show it
+                if(item.classList.contains('d-none')){
+                    item.classList.remove('d-none');
+                }
+            }
+        }
+    }
+    if(user_type === "landlord"){
+        // Hide all items with the class tenant
+        for(i in tenant_items){
+            item = tenant_items[i];
+            if(item.classList !== undefined){
+                // Hide the items
+                item.classList.add('d-none');
+            }
+        }
+        // Show all landlord items
+        for(i in landlord_items){
+            item = landlord_items[i];
+            if(item.classList !== undefined){
+                // Check whether the item was hidden and show it
+                if(item.classList.contains('d-none')){
+                    item.classList.remove('d-none');
+                }
+            }
+        }
+    }
+};
 
 function home() {
     hide_all();
@@ -477,5 +532,6 @@ function init(){
 
     // refresh_logged();
     home();
+    display_controls();
     // get_questions();
 }

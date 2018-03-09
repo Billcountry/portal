@@ -284,15 +284,9 @@
 					</div>
 					<div class="modal-body">
 						<form action="" method="post">
-							<h3>Category</h3>
 							<div class="form-group">
-								<select name="category" id="category" class="form-control">
-									<option value="">Select</option>
-									<option value="">Apartment</option>
-									<option value="">Mansion</option>
-									<option value="">Bed Sitter</option>
-									<option value="">Single Room</option>
-								</select>
+								<label for="county">Property Name:</label>
+								<input type="text" name="name" id="prop_name" placeholder="Property Name" required class="form-control">
 							</div>
 							<h3>Location</h3>
 							<div class="form-group">
@@ -301,120 +295,29 @@
 							</div>
 							<div class="form-group">
 								<label for="consti">Constituency:</label>
-								<input type="text" name="consti" id="consti" placeholder="Enter Your Constituency" required class="form-control">
+								<input type="text" name="Constituency" id="constituency" placeholder="Enter Your Constituency" required class="form-control">
 							</div>
 							<div class="form-group">
 								<label for="ward">Ward:</label>
-								<input type="text" name="ward" id="ward" placeholder="Enter Ward" required class="form-control">
+								<input type="text" name="Ward" id="ward" placeholder="Enter Ward" required class="form-control">
 							</div>
 							<div class="form-group">
 								<label for="town"> Town</label>
-								<input type="text" name="town" id="town" placeholder="Enter Town " required class="form-control">
+								<input type="text" name="Town" id="town" placeholder="Enter Town " required class="form-control">
 							</div>
 							<h3>Brief Description</h3>
 							<div class="form-group">
-								<textarea name="desc" class="form-control" id="" cols="30" rows="10"></textarea>
+								<textarea title="" name="description" class="form-control" id="prop_desc" cols="30" rows="10"></textarea>
 							</div>
 							<h3>Upload Images </h3>
 							<div class="form-group">
-								<input type="file" name="image" accept="image/*" id="upload" class="form-control">
+								<input type="file" name="image" accept="image/*" id="prop_upload" class="form-control">
 							</div>
 						</form>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 						<button type="button" class="btn btn-outline-success">Post Property</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="modal fade" tabindex="-1" role="dialog"
-			 aria-hidden="true" id="new_hotel_modal">
-			<div class="modal-dialog modal-lg">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">Add Hotel</h5>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true" class="material material-close-circle-o"></span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<form action="" method="post">
-							<h3>Hotel Type</h3>
-							<div class="form-group">
-								<select title="" name="category" id="ht_type" class="form-control">
-									<option value="">Select</option>
-									<option value="">Apartment</option>
-								</select>
-							</div>
-							<div class="form-group">
-								<label for="ht_name">Name:</label>
-								<input type="text" name="ht_name" id="ht_name" placeholder="Hotel Name" required class="form-control">
-							</div>
-							<div class="form-group">
-								<label for="ht_phone">Phone:</label>
-								<input type="text" name="ht_phone" id="ht_phone" placeholder="Phone Number" required class="form-control">
-							</div>
-							<div class="form-group">
-								<label for="ht_email">Email:</label>
-								<input type="text" name="ht_email" id="ht_email" placeholder="Email Address" required class="form-control">
-							</div>
-							<div class="form-group">
-								<label for="ht_loc">Location</label>
-								<input type="text" name="ht_loc" id="ht_loc" placeholder="Location" required class="form-control">
-							</div>
-							<h3>Brief Description</h3>
-							<div class="form-group">
-								<textarea name="ht_desc" title="" class="form-control" id="ht_desc" rows="5"></textarea>
-							</div>
-							<h3>Image</h3>
-							<div class="form-group">
-								<input type="text" name="ht_image" id="ht_image" placeholder="Link to Image" required class="form-control">
-							</div>
-						</form>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-						<button type="button" class="btn btn-outline-success">Add Hotel</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="modal fade" tabindex="-1" role="dialog"
-			 aria-hidden="true" id="new_menu_item_modal">
-			<div class="modal-dialog modal-lg">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">Add Menu Item</h5>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true" class="material material-close-circle-o"></span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<form action="" method="post">
-							<h3>Menu Type</h3>
-							<div class="form-group">
-								<select title="" name="category" id="menu_type" class="form-control">
-									<option value="">Select</option>
-								</select>
-							</div>
-							<div class="form-group">
-								<label for="county">Item Name:</label>
-								<input type="text" name="item_name" id="menu_item" placeholder="Menu Item" required class="form-control">
-							</div>
-							<h3>Brief Description</h3>
-							<div class="form-group">
-								<textarea title="" name="desc" class="form-control" id="menu_desc" rows="4"></textarea>
-							</div>
-							<h3>Image</h3>
-							<div class="form-group">
-								<input type="file" name="upload" id="menu_image" class="form-control">
-							</div>
-						</form>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-						<button type="button" class="btn btn-outline-success">Add Item</button>
 					</div>
 				</div>
 			</div>
@@ -498,6 +401,64 @@
 							</span>
 						</div>
 
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" tabindex="-1" role="dialog"
+			 aria-hidden="true" id="new_house_modal">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">New House</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true" class="material material-close-circle-o"></span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form action="" method="post">
+							<h3>Category</h3>
+							<div class="form-group">
+								<select name="type" id="category" class="form-control">
+									<option value="Apartment">Apartment</option>
+									<option value="Mansion">Mansion</option>
+									<option value="Bed Sitter">Bed Sitter</option>
+									<option value="Single Room">Single Room</option>
+									<option value="One Bedroom">One Bedroom</option>
+									<option value="Two Bedroom">Two Bedroom</option>
+								</select>
+							</div>
+
+							<div class="form-group">
+								<label for="county">County:</label>
+								<input type="text" name="county" id="county" placeholder="Enter Your County" required class="form-control">
+							</div>
+							<div class="form-group">
+								<label for="constituency">Constituency:</label>
+								<input type="text" name="consti" id="consti" placeholder="Enter Your Constituency" required class="form-control">
+							</div>
+							'description', 'monthly_rent', 'booking_amount', 'plot'
+							<div class="form-group">
+								<label for="ward">Ward:</label>
+								<input type="text" name="ward" id="ward" placeholder="Enter Ward" required class="form-control">
+							</div>
+							<div class="form-group">
+								<label for="town"> Town</label>
+								<input type="text" name="town" id="town" placeholder="Enter Town " required class="form-control">
+							</div>
+							<h3>Brief Description</h3>
+							<div class="form-group">
+								<textarea name="desc" class="form-control" id="" cols="30" rows="10"></textarea>
+							</div>
+							<h3>Upload Images </h3>
+							<div class="form-group">
+								<input type="file" name="image" accept="image/*" id="upload" class="form-control">
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-outline-success">Post Property</button>
 					</div>
 				</div>
 			</div>

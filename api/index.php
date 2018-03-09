@@ -210,7 +210,7 @@ class Api{
 	}
 
 	function create_property(){
-        $variables = ['name', 'description', 'location', 'county', 'Constituency', 'Ward', 'Town'];
+        $variables = ['name', 'description', 'county', 'Constituency', 'Ward', 'Town'];
         $success = false;
         $message = null;
         // Check whether all data was sent
@@ -243,7 +243,7 @@ class Api{
                 $message = "User must be logged in to perform this action";
             }
         }else{
-            $message = "Please provide all the required variables, i.e. ['name', 'description', 'location', 'county', 'Constituency', 'Ward', 'Town']";
+            $message = "Please provide all the required variables, i.e. ['name', 'description', 'county', 'Constituency', 'Ward', 'Town']";
         }
         if($success){
             return array("success"=>true, "message"=>$message);
@@ -300,7 +300,7 @@ class Api{
                 $message = "User must be logged in to perform this action";
             }
         }else{
-            $message = "Please provide all the required variables, i.e. ['field', 'value']";
+            $message = "Please provide all the required variables, i.e. ['type', 'description', 'monthly_rent', 'booking_amount', 'plot']";
         }
         if($success){
             return array("success"=>true, "message"=>$message);

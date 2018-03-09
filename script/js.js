@@ -10,8 +10,8 @@ function change_password() {
     var old = document.querySelector("#old_pass").value;
     var newp = document.querySelector("#new_pass").value;
     var conf = document.querySelector("#conf_pass").value;
-    if(newp.length >= 8) {
-        if(newp === conf) {
+    if (newp.length >= 8) {
+        if (newp === conf) {
             $.ajax({
                 url: "api/?action=change_password",
                 type: "POST",
@@ -33,51 +33,49 @@ function change_password() {
                     Add_error("An unkown error occurred", "pass_change_errors", false);
                 }
             });
-        }else{
+        } else {
             Add_error("Passwords do not match", "pass_change_errors", false);
         }
-    }else{
+    } else {
         Add_error("Password too short", "pass_change_errors", false);
     }
 }
 
-function Toast(message,length)
-{
+function Toast(message, length) {
     clearTimeout(timer);
     document.getElementById("message").innerHTML = message;
     document.getElementById("toast").style.display = "block";
-    timer = setInterval(function() {
+    timer = setInterval(function () {
         document.getElementById("message").innerHTML = "";
         document.getElementById("toast").style.display = "none";
         clearTimeout(timer);
-    },(length*1000));
-    var a = {a:1, b:2};
+    }, (length * 1000));
+    var a = {a: 1, b: 2};
 }
 
-function Add_error(error, location, append) 
-{
+function Add_error(error, location, append) {
     var close = document.createElement("button");
-    close.setAttribute("type","button");
-    close.setAttribute("class","close");
-    close.setAttribute("data-dismiss","alert");
-    close.setAttribute("aria-label","Close");
+    close.setAttribute("type", "button");
+    close.setAttribute("class", "close");
+    close.setAttribute("data-dismiss", "alert");
+    close.setAttribute("aria-label", "Close");
     var span = document.createElement("span");
-    span.setAttribute("aria-hidden","true");
-    span.setAttribute("class","material material-close-circle");
+    span.setAttribute("aria-hidden", "true");
+    span.setAttribute("class", "material material-close-circle");
     close.appendChild(span);
 
     var div = document.createElement("div");
     var text = document.createTextNode(error);
     div.appendChild(close);
     div.appendChild(text);
-    div.setAttribute("class","alert alert-danger alert-dismissible fade show");
-    div.setAttribute("role","alert");
+    div.setAttribute("class", "alert alert-danger alert-dismissible fade show");
+    div.setAttribute("role", "alert");
 
-    location = document.querySelector("#"+location);
-    if(append){
+    location = document.querySelector("#" + location);
+    if (append) {
 
         location.appendChild(div);
-    }else{
+    } else {
         while (location.hasChildNodes()) {
             location.removeChild(location.lastChild);
         }
@@ -85,30 +83,29 @@ function Add_error(error, location, append)
     }
 }
 
-function Add_success(message, location, append)
-{
+function Add_success(message, location, append) {
     var close = document.createElement("button");
-    close.setAttribute("type","button");
-    close.setAttribute("class","close");
-    close.setAttribute("data-dismiss","alert");
-    close.setAttribute("aria-label","Close");
+    close.setAttribute("type", "button");
+    close.setAttribute("class", "close");
+    close.setAttribute("data-dismiss", "alert");
+    close.setAttribute("aria-label", "Close");
     var span = document.createElement("span");
-    span.setAttribute("aria-hidden","true");
-    span.setAttribute("class","material material-close-circle");
+    span.setAttribute("aria-hidden", "true");
+    span.setAttribute("class", "material material-close-circle");
     close.appendChild(span);
 
     var div = document.createElement("div");
     var text = document.createTextNode(message);
     div.appendChild(close);
     div.appendChild(text);
-    div.setAttribute("class","alert alert-success alert-dismissible fade show");
-    div.setAttribute("role","alert");
+    div.setAttribute("class", "alert alert-success alert-dismissible fade show");
+    div.setAttribute("role", "alert");
 
-    location = document.querySelector("#"+location);
-    if(append){
+    location = document.querySelector("#" + location);
+    if (append) {
 
         location.appendChild(div);
-    }else{
+    } else {
         while (location.hasChildNodes()) {
             location.removeChild(location.lastChild);
         }
@@ -118,30 +115,27 @@ function Add_success(message, location, append)
 
 var working = 0;
 
-function add_job(desc) 
-{
+function add_job(desc) {
     var loader = document.querySelector("#loader");
     var span = document.createElement("span");
     span.appendChild(document.createTextNode(desc));
     loader.appendChild(span);
     working += 1;
     loader.style.visibility = "visible";
-    return loader.childNodes.length -1;
+    return loader.childNodes.length - 1;
 }
 
-function remove_job(id)
-{
+function remove_job(id) {
     var loader = document.querySelector("#loader");
     var span = loader.childNodes[id];
     span.style.display = "none";
     working -= 1;
-    if(working===0){
+    if (working === 0) {
         loader.style.visibility = "hidden";
     }
 }
 
-function Clear(location)
-{
+function Clear(location) {
     while (location.hasChildNodes()) {
         location.removeChild(location.lastChild);
     }
@@ -184,12 +178,12 @@ function addUser() {
         } else {
             Add_error("You must accept the terms and conditions before you continue", "sign_up_errors", false);
         }
-    }catch(e){
-        window.open("http://stackoverflow.com/search?q=[js]+"+e.message,'_blank');
+    } catch (e) {
+        window.open("http://stackoverflow.com/search?q=[js]+" + e.message, '_blank');
     }
 }
 
-function Resendconf(){
+function Resendconf() {
     var token = sessionStorage.getItem("token");
     var job = add_job("Sending mail...");
     $.ajax({
@@ -198,10 +192,10 @@ function Resendconf(){
         data: {token: token, action: "resend-code"},
         dataType: "json",
         success: function (response) {
-            if(response.success){
-                Add_success(response.message,"email_confirm_error", false);
-            }else{
-                Add_error(response.message,"email_confirm_error",false);
+            if (response.success) {
+                Add_success(response.message, "email_confirm_error", false);
+            } else {
+                Add_error(response.message, "email_confirm_error", false);
             }
             remove_job(job);
         },
@@ -213,7 +207,7 @@ function Resendconf(){
 
 function refresh_logged() {
     var token = sessionStorage.getItem("token");
-    if(token !== undefined && token !== null){
+    if (token !== undefined && token !== null) {
         $.ajax({
             url: "api.php",
             type: "POST",
@@ -222,21 +216,21 @@ function refresh_logged() {
                 action: "current"
             },
             success: function (response) {
-                if(response.success){
+                if (response.success) {
                     sessionStorage.setItem("token", response.user.token);
                     sessionStorage.setItem("user_id", response.user.user_id);
                     sessionStorage.setItem("user", response.user.user);
                     sessionStorage.setItem("email", response.user.email);
                     sessionStorage.setItem("state", response.user.state);
                     document.querySelector("#mlink").innerHTML = response.user.user;
-                }else{
+                } else {
                     sessionStorage.clear();
                     console.log(response.message);
                     document.querySelector("#mlink").innerHTML = "Members";
                 }
             }
         });
-    }else{
+    } else {
         sessionStorage.clear();
         document.querySelector("#mlink").innerHTML = "Members";
     }
@@ -257,38 +251,38 @@ function login() {
         contentType: false,
         dataType: "json",
         success: function (response) {
-            if(response.success){
-                sessionStorage.setItem('state','normal');
-                sessionStorage.setItem('user_type',user_type);
+            if (response.success) {
+                sessionStorage.setItem('state', 'normal');
+                sessionStorage.setItem('user_type', user_type);
                 var profile = response.user.profile;
                 var dash_form = document.forms.user_dash;
-                for(var key in profile){
+                for (var key in profile) {
                     // Save the profile sent as part of the browser's data
                     sessionStorage.setItem(key, profile[key]);
                     // Check whether they key is part of the profile form then fill it accordingly
-                    if(dash_form[key] !== undefined){
+                    if (dash_form[key] !== undefined) {
                         dash_form[key].value = profile[key];
                     }
                 }
                 member();
-            }else{
-                Add_error(response.error, "sign_in_errors",false);
+            } else {
+                Add_error(response.error, "sign_in_errors", false);
             }
         },
         error: function (error) {
-            Add_error("Anknown error occured", "sign_in_errors",false);
+            Add_error("Anknown error occured", "sign_in_errors", false);
             console.log(error);
         }
     });
 }
 
-function Numbersonly(evt){
-    evt = (evt)? evt:window.event;
-    var charcode = (evt.which)?evt.which:evt.keyCode;
-    return !(charcode>31 && (charcode<48 || charcode>57));
+function Numbersonly(evt) {
+    evt = (evt) ? evt : window.event;
+    var charcode = (evt.which) ? evt.which : evt.keyCode;
+    return !(charcode > 31 && (charcode < 48 || charcode > 57));
 }
 
-function reset_password(){
+function reset_password() {
     var job = add_job("Resetting Password...");
     var mail = document.querySelector("#reset_email").value;
     $.ajax({
@@ -300,10 +294,10 @@ function reset_password(){
         },
         dataType: "json",
         success: function (response) {
-            if(response.success){
-                Add_success(response.message,"password_reset_error",false);
-            }else{
-                Add_error(response.message,"password_reset_error",false);
+            if (response.success) {
+                Add_success(response.message, "password_reset_error", false);
+            } else {
+                Add_error(response.message, "password_reset_error", false);
             }
             remove_job(job);
         },
@@ -323,12 +317,12 @@ function logout() {
         },
         dataType: "json",
         success: function (response) {
-            if(response.success) {
+            if (response.success) {
                 sessionStorage.clear();
                 Toast(response.message, 6);
-                sessionStorage.setItem('state','guest');
+                sessionStorage.setItem('state', 'guest');
                 member();
-            }else{
+            } else {
                 Toast(response.error, 6);
             }
         },
@@ -353,15 +347,15 @@ function confirm_email() {
         },
         dataType: "json",
         success: function (response) {
-            if(response.success){
+            if (response.success) {
                 sessionStorage.setItem("token", response.user.token);
                 sessionStorage.setItem("user_id", response.user.user_id);
                 sessionStorage.setItem("user", response.user.user);
                 sessionStorage.setItem("email", response.user.email);
                 sessionStorage.setItem("state", response.user.state);
                 member();
-            }else{
-                Add_error(response.message,"email_confirm_error",false);
+            } else {
+                Add_error(response.message, "email_confirm_error", false);
             }
             remove_job(job);
         },
@@ -375,7 +369,7 @@ var p_extra = {};
 var TOAST_LONG = 10;
 var TOAST_SHORT = 5;
 
-function update_profile(field, value){
+function update_profile(field, value) {
     $.ajax({
         url: "api/",
         type: "POST",
@@ -387,11 +381,11 @@ function update_profile(field, value){
         dataType: "json",
         success: function (response) {
             var form = document.forms.user_dash;
-            if(response.success){
-                Toast(response.message,TOAST_SHORT);
+            if (response.success) {
+                Toast(response.message, TOAST_SHORT);
                 sessionStorage.setItem(field, value);
-            }else{
-                Toast(response.error,TOAST_SHORT);
+            } else {
+                Toast(response.error, TOAST_SHORT);
                 // reset to old value
                 form[field].value = sessionStorage.getItem(field);
             }
@@ -404,19 +398,19 @@ function update_profile(field, value){
     });
 }
 
-function personal_profile(){
+function personal_profile() {
     var id = sessionStorage.getItem('ID');
-    if(id !== null && id !== undefined){
+    if (id !== null && id !== undefined) {
         // Update the profile form
         var form = document.forms.user_dash;
         var fields = ['First_Name', 'Last_Name', 'UserName', 'Email', 'Address', 'KRA_PIN'];
-        for(var i in fields){
+        for (var i in fields) {
             var key = fields[i];
             form[key].value = sessionStorage.getItem(key);
         }
-    }else{
+    } else {
         // User is not logged in
-        sessionStorage.setItem('state','guest');
+        sessionStorage.setItem('state', 'guest');
         member();
     }
 }
@@ -431,25 +425,25 @@ function member() {
     hide_all();
     document.querySelector("#member").style.display = "block";
     var memberstate = sessionStorage.getItem("state");
-    if(memberstate === undefined || memberstate === null){
+    if (memberstate === undefined || memberstate === null) {
         memberstate = "guest";
     }
-    if(memberstate === "guest"){
+    if (memberstate === "guest") {
         document.querySelector("#registration-form").style.display = "none";
         document.querySelector("#login-form").style.display = "block";
         document.querySelector("#reset-password").style.display = "none";
         document.querySelector("#user-dash").style.display = "none";
-    }else if(memberstate === "register"){
+    } else if (memberstate === "register") {
         document.querySelector("#registration-form").style.display = "block";
         document.querySelector("#login-form").style.display = "none";
         document.querySelector("#reset-password").style.display = "none";
         document.querySelector("#user-dash").style.display = "none";
-    }else if(memberstate === "reset-password"){
+    } else if (memberstate === "reset-password") {
         document.querySelector("#registration-form").style.display = "none";
         document.querySelector("#login-form").style.display = "none";
         document.querySelector("#reset-password").style.display = "block";
         document.querySelector("#user-dash").style.display = "none";
-    }else if(memberstate === "normal"){
+    } else if (memberstate === "normal") {
         // update profile and display it
         personal_profile();
         document.querySelector("#registration-form").style.display = "none";
@@ -460,9 +454,9 @@ function member() {
     display_controls();
 }
 
-var display_controls = function(){
+var display_controls = function () {
     var user_type = sessionStorage.getItem("user_type");
-    if(user_type === undefined || user_type === null){
+    if (user_type === undefined || user_type === null) {
         user_type = "tenant";
     }
     // Get all the items with class landlord and tenant
@@ -471,42 +465,42 @@ var display_controls = function(){
     // Hide landlord or tenant items accordingly
     var i;
     var item;
-    if(user_type === "tenant"){
+    if (user_type === "tenant") {
         // Hide all items with the class landlord
-        for(i in landlord_items){
+        for (i in landlord_items) {
             item = landlord_items[i];
             // Confirm that the item really exists. Javascript can be mad sometimes
-            if(item.classList !== undefined){
+            if (item.classList !== undefined) {
                 // Hide the items
                 item.classList.add('d-none');
             }
         }
         // Show all tenants
-        for(i in tenant_items){
+        for (i in tenant_items) {
             item = tenant_items[i];
-            if(item.classList !== undefined){
+            if (item.classList !== undefined) {
                 // Check whether the item was hidden and show it
-                if(item.classList.contains('d-none')){
+                if (item.classList.contains('d-none')) {
                     item.classList.remove('d-none');
                 }
             }
         }
     }
-    if(user_type === "landlord"){
+    if (user_type === "landlord") {
         // Hide all items with the class tenant
-        for(i in tenant_items){
+        for (i in tenant_items) {
             item = tenant_items[i];
-            if(item.classList !== undefined){
+            if (item.classList !== undefined) {
                 // Hide the items
                 item.classList.add('d-none');
             }
         }
         // Show all landlord items
-        for(i in landlord_items){
+        for (i in landlord_items) {
             item = landlord_items[i];
-            if(item.classList !== undefined){
+            if (item.classList !== undefined) {
                 // Check whether the item was hidden and show it
-                if(item.classList.contains('d-none')){
+                if (item.classList.contains('d-none')) {
                     item.classList.remove('d-none');
                 }
             }
@@ -521,14 +515,34 @@ function home() {
 }
 
 function menu(choice) {
-    if(document.querySelector("#m_home").classList.contains("active"))
+    if (document.querySelector("#m_home").classList.contains("active"))
         document.querySelector("#m_home").classList.remove("active");
-    if(document.querySelector("#m_member").classList.contains("active"))
+    if (document.querySelector("#m_member").classList.contains("active"))
         document.querySelector("#m_member").classList.remove("active");
     document.querySelector(choice).classList.add("active");
 }
 
-function init(){
+function setup_locations() {
+    $.ajax({
+        url: "api/?action=location",
+        dataType: "json",
+        success: function (response) {
+            if(response.success){
+                var counties = response.location["counties"];
+                var constituency = response.location["constituencies"];
+                var wards = response.location["wards"];
+                var county_loc = document.getElementById("");
+                var const_loc = document.getElementById("");
+                var ward_loc = document.getElementById("");
+            }
+        },
+        error: function (error) {
+
+        }
+    });
+}
+
+function init() {
 
     // refresh_logged();
     home();

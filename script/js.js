@@ -42,6 +42,8 @@ function change_password() {
 }
 
 function Toast(message, length) {
+    if(length === undefined)
+        length = 6;
     clearTimeout(timer);
     document.getElementById("message").innerHTML = message;
     document.getElementById("toast").style.display = "block";
@@ -183,59 +185,6 @@ function addUser() {
     }
 }
 
-function Resendconf() {
-    var token = sessionStorage.getItem("token");
-    var job = add_job("Sending mail...");
-    $.ajax({
-        url: "api.php",
-        type: "POST",
-        data: {token: token, action: "resend-code"},
-        dataType: "json",
-        success: function (response) {
-            if (response.success) {
-                Add_success(response.message, "email_confirm_error", false);
-            } else {
-                Add_error(response.message, "email_confirm_error", false);
-            }
-            remove_job(job);
-        },
-        error: function (response) {
-            remove_job(job);
-        }
-    });
-}
-
-function refresh_logged() {
-    var token = sessionStorage.getItem("token");
-    if (token !== undefined && token !== null) {
-        $.ajax({
-            url: "api.php",
-            type: "POST",
-            data: {
-                token: token,
-                action: "current"
-            },
-            success: function (response) {
-                if (response.success) {
-                    sessionStorage.setItem("token", response.user.token);
-                    sessionStorage.setItem("user_id", response.user.user_id);
-                    sessionStorage.setItem("user", response.user.user);
-                    sessionStorage.setItem("email", response.user.email);
-                    sessionStorage.setItem("state", response.user.state);
-                    document.querySelector("#mlink").innerHTML = response.user.user;
-                } else {
-                    sessionStorage.clear();
-                    console.log(response.message);
-                    document.querySelector("#mlink").innerHTML = "Members";
-                }
-            }
-        });
-    } else {
-        sessionStorage.clear();
-        document.querySelector("#mlink").innerHTML = "Members";
-    }
-}
-
 function login() {
     var form = document.forms.login_form;
     // Convert the form to multipart formdata for submission
@@ -270,42 +219,16 @@ function login() {
             }
         },
         error: function (error) {
-            Add_error("Anknown error occured", "sign_in_errors", false);
+            Add_error("Unknown error occurred", "sign_in_errors", false);
             console.log(error);
         }
     });
 }
 
-function Numbersonly(evt) {
+function NumbersOnly(evt) {
     evt = (evt) ? evt : window.event;
     var charcode = (evt.which) ? evt.which : evt.keyCode;
     return !(charcode > 31 && (charcode < 48 || charcode > 57));
-}
-
-function reset_password() {
-    var job = add_job("Resetting Password...");
-    var mail = document.querySelector("#reset_email").value;
-    $.ajax({
-        url: "api.php",
-        type: "POST",
-        data: {
-            action: "reset-password",
-            email: mail
-        },
-        dataType: "json",
-        success: function (response) {
-            if (response.success) {
-                Add_success(response.message, "password_reset_error", false);
-            } else {
-                Add_error(response.message, "password_reset_error", false);
-            }
-            remove_job(job);
-        },
-        error: function (error) {
-            remove_job(job);
-            console.log(error.responseText);
-        }
-    });
 }
 
 function logout() {
@@ -332,40 +255,6 @@ function logout() {
     });
 }
 
-function confirm_email() {
-    var job = add_job("Confiming email...");
-    console.log("Confiming email...");
-    var c_code = document.querySelector("#confirmation_code").value;
-    var token = sessionStorage.getItem("token");
-    $.ajax({
-        url: "api.php",
-        type: "POST",
-        data: {
-            token: token,
-            code: c_code,
-            action: "confirm-code"
-        },
-        dataType: "json",
-        success: function (response) {
-            if (response.success) {
-                sessionStorage.setItem("token", response.user.token);
-                sessionStorage.setItem("user_id", response.user.user_id);
-                sessionStorage.setItem("user", response.user.user);
-                sessionStorage.setItem("email", response.user.email);
-                sessionStorage.setItem("state", response.user.state);
-                member();
-            } else {
-                Add_error(response.message, "email_confirm_error", false);
-            }
-            remove_job(job);
-        },
-        error: function () {
-            remove_job(job);
-        }
-    });
-}
-
-var p_extra = {};
 var TOAST_LONG = 10;
 var TOAST_SHORT = 5;
 
@@ -417,7 +306,12 @@ function personal_profile() {
 
 function hide_all() {
     document.querySelector("#member").style.display = "none";
-    document.querySelector("#home").style.display = "none";
+    document.querySelector("#plots").style.display = "none";
+    document.querySelector("#houses").style.display = "none";
+}
+
+function open_plot(plot_id) {
+
 }
 
 function member() {
@@ -508,15 +402,116 @@ var display_controls = function () {
     }
 };
 
-function home() {
+function add_plot(){
+    try {
+        var form = document.forms.add_plot;
+        // Convert the form to multipart formdata for submission
+        var data = new FormData(form);
+        data.append('action', 'add_plot');
+        member();
+        $.ajax({
+            type: "POST",
+            url: "api/",
+            data: data,
+            processData: false,
+            contentType: false,
+            dataType: "json",
+            success: function (response) {
+                if (response.success) {
+                    $('#new_property_modal').modal('hide');
+                    plots();
+                    Toast(response.message, TOAST_LONG);
+                } else {
+                    Add_error(response.error, "add_property_errors", false);
+                }
+            },
+            error: function (error) {
+                Add_error("Unknown error occurred", "add_property_errors", false);
+                console.log(error);
+            }
+        });
+    }catch(e){
+        console.log(e.message);
+        console.log(e.stackTrace);
+    }
+}
+
+var loaded_plots = []; 
+
+function plots() {
     hide_all();
-    menu("#m_home");
-    document.querySelector("#home").style.display = "block";
+    menu("#m_plots");
+    document.querySelector("#plots").style.display = "block";
+    var search = document.getElementById("search").value;
+    var county = document.getElementById("search_county").value;
+    $.ajax({
+        url: "api/",
+        type: "GET",
+        data: {
+            action: "plots",
+            search: search,
+            county: county
+        },
+        dataType: 'json',
+        success: function (response) {
+            if(response.success){
+                if(response.plots.length > 0){
+                    loaded_plots = response.plots;
+                    var plots_list = document.querySelector("#all_plots");
+                    Clear(plots_list);
+                    for(var i in loaded_plots){
+                        var row = document.createElement("tr");
+                        var cell = document.createElement("td");
+                        var img_div = document.createElement("div");
+                        var detail_div = document.createElement("div");
+                        var img_a = document.createElement("a");
+                        var det_a = document.createElement("a");
+                        var title = document.createElement("h4");
+                        var desc = document.createElement("p");
+                        var loc = document.createElement("small");
+                        var img = document.createElement("img");
+                        row.appendChild(cell);
+                        cell.appendChild(img_div);
+                        img_div.appendChild(img_a);
+                        img_a.appendChild(img);
+                        cell.appendChild(detail_div);
+                        detail_div.appendChild(det_a);
+                        det_a.appendChild(title);
+                        detail_div.appendChild(desc);
+                        detail_div.appendChild(loc);
+                        cell.className = 'row';
+                        img_div.className = 'text-center col-sm-12 col-md-4 col-lg-3';
+                        img_a.href = '#'+loaded_plots[i]["name"];
+                        img.className = 'plot-thumb';
+                        detail_div.className = 'text-center text-md-left col-sm-12 col-md-8 col-lg-9';
+                        desc.className = 'small';
+                        loc.className = 'text-muted';
+                        det_a.href = '#'+loaded_plots[i]["name"];
+                        det_a.setAttribute("onclick", "open_plot("+i+")");
+                        img_a.setAttribute("onclick", "open_plot("+i+")");
+                        img.src = loaded_plots[i]["photo"];
+                        desc.appendChild(new Text(loaded_plots[i]["description"]));
+                        title.appendChild(new Text(loaded_plots[i]["name"]));
+                        loc.appendChild(new Text("Location: "+loaded_plots[i]["Town"]+", "+loaded_plots[i]["Ward"]+", "+loaded_plots[i]["Constituency"]));
+                        plots_list.appendChild(row);
+                    }
+                }else{
+                    Toast("No places found for current search criteria");
+                }
+            }else{
+                Toast(response.error, TOAST_LONG);
+            }
+        },
+        error: function (error) {
+            Toast("Unknown error occurred",TOAST_LONG);
+            console.log(error);
+        }
+    });
 }
 
 function menu(choice) {
-    if (document.querySelector("#m_home").classList.contains("active"))
-        document.querySelector("#m_home").classList.remove("active");
+    if (document.querySelector("#m_plots").classList.contains("active"))
+        document.querySelector("#m_plots").classList.remove("active");
     if (document.querySelector("#m_member").classList.contains("active"))
         document.querySelector("#m_member").classList.remove("active");
     document.querySelector(choice).classList.add("active");
@@ -531,13 +526,80 @@ function setup_locations() {
                 var counties = response.location["counties"];
                 var constituency = response.location["constituencies"];
                 var wards = response.location["wards"];
-                var county_loc = document.getElementById("");
-                var const_loc = document.getElementById("");
-                var ward_loc = document.getElementById("");
+                // sort by name
+                counties.sort(function(a, b) {
+                    var nameA = a.County.toUpperCase(); // ignore upper and lowercase
+                    var nameB = b.County.toUpperCase(); // ignore upper and lowercase
+                    if (nameA < nameB)
+                        return -1;
+                    if (nameA > nameB)
+                        return 1;
+                    // names must be equal
+                    return 0;
+                });
+                constituency.sort(function(a, b) {
+                    var nameA = a.SubCounty.toUpperCase(); // ignore upper and lowercase
+                    var nameB = b.SubCounty.toUpperCase(); // ignore upper and lowercase
+                    if (nameA < nameB)
+                        return -1;
+                    if (nameA > nameB)
+                        return 1;
+                    // names must be equal
+                    return 0;
+                });
+                wards.sort(function(a, b) {
+                    var nameA = a.Ward.toUpperCase(); // ignore upper and lowercase
+                    var nameB = b.Ward.toUpperCase(); // ignore upper and lowercase
+                    if (nameA < nameB)
+                        return -1;
+                    if (nameA > nameB)
+                        return 1;
+                    // names must be equal
+                    return 0;
+                });
+                var county_loc = document.getElementById("county");
+                var county_loc_2 = document.getElementById("search_county");
+                var const_loc = document.getElementById("constituency");
+                var ward_loc = document.getElementById("ward");
+                Clear(county_loc);
+                Clear(const_loc);
+                Clear(ward_loc);
+                var i;
+                var opt;
+                for(i in counties){
+                    opt = document.createElement("option");
+                    opt.value = counties[i]["id"];
+                    opt.appendChild(new Text(counties[i]["County"]));
+                    county_loc.appendChild(opt);
+                }
+                // Add a blank county to the search box
+                opt = document.createElement("option");
+                opt.value = "";
+                opt.appendChild(new Text("All Counties"));
+                county_loc_2.appendChild(opt);
+                for(i in counties){
+                    opt = document.createElement("option");
+                    opt.value = counties[i]["id"];
+                    opt.appendChild(new Text(counties[i]["County"]));
+                    county_loc_2.appendChild(opt);
+                }
+                for(i in constituency){
+                    opt = document.createElement("option");
+                    opt.value = constituency[i]["id"];
+                    opt.appendChild(new Text(constituency[i]["SubCounty"]));
+                    const_loc.appendChild(opt);
+                }
+                for(i in wards){
+                    opt = document.createElement("option");
+                    opt.value = wards[i]["id"];
+                    opt.appendChild(new Text(wards[i]["Ward"]));
+                    ward_loc.appendChild(opt);
+                }
             }
         },
         error: function (error) {
-
+            Add_error("Unknown error occurred", "sign_in_errors", false);
+            console.log(error);
         }
     });
 }
@@ -545,7 +607,8 @@ function setup_locations() {
 function init() {
 
     // refresh_logged();
-    home();
+    plots();
+    setup_locations();
     display_controls();
     // get_questions();
 }

@@ -358,19 +358,39 @@ class Api{
         $stmt = $this->conn->stmt_init();
         // Determine whether to present the plots to a landlord or tenant
         $user_type = 'tenant';
+        $search = '';
+        if(isset($_GET['search'])){
+            $search = $this->conn->escape_string($_GET['search']);
+        }
+        $county = '';
+        if(isset($_GET['county'])){
+            // Escape the string to prevent sql injection. Automatically done using bind params
+            $county = $this->conn->escape_string($_GET['county']);
+        }
         if(isset($_SESSION['logged_in'], $_SESSION['user_id']))
             if($_SESSION['user_type'] == 'landlord')
                 $user_type = 'landlord';
         if($user_type=='landlord'){
-            $stmt->prepare("SELECT ID, name, description, county, Constituency, Ward, Town, photo FROM plots WHERE landlord={$_SESSION['user_id']}");
+            $stmt->prepare("SELECT plots.ID, name, description, counties.County, SubCounty AS Constituency, wards.Ward, Town, photo FROM plots
+                INNER JOIN counties ON plots.county = counties.id
+                INNER JOIN wards ON plots.Ward = wards.id
+                INNER JOIN sub_counties ON plots.Constituency = sub_counties.id
+                 WHERE landlord={$_SESSION['user_id']}
+                
+                ");
         }else{
             // Only select approved plots that have vacant houses
             $stmt->prepare("
                 SELECT DISTINCT(plot) AS ID, name, plots.description AS description,
-                county, Constituency, Ward, Town, plots.photo AS photo
+                counties.County, SubCounty AS Constituency, wards.Ward, Town, plots.photo AS photo
                 FROM houses 
                 INNER JOIN plots ON houses.plot = plots.ID
-                WHERE status='vacant' AND approved=TRUE 
+                INNER JOIN counties ON plots.county = counties.id
+                INNER JOIN wards ON plots.Ward = wards.id
+                INNER JOIN sub_counties ON plots.Constituency = sub_counties.id
+                WHERE status='vacant' AND approved=TRUE AND counties.County LIKE '%$county%' AND 
+                (plots.description LIKE '%$search%' OR houses.description LIKE '%$search%' 
+                OR name LIKE '%$search%' OR Town LIKE '%$search%' OR wards.Ward LIKE '%$search%' OR sub_counties.SubCounty LIKE '%$search%')
             ");
         }
         // Execute the statement and return the results

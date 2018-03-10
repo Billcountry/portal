@@ -33,7 +33,7 @@
 	<div class="collapse navbar-collapse" id="navbarCollapse">
 		<ul class="navbar-nav mr-auto">
 			<li data-toggle="collapse" data-target="#navbarCollapse.show" class="nav-item">
-				<a class="nav-link active" href="#home" id="m_home" onclick="menu('#m_home'); home();">Houses</a>
+				<a class="nav-link active" href="#plots" id="m_plots" onclick="menu('#m_plots'); plots();">Houses</a>
 			</li>
 			<li data-toggle="collapse" data-target="#navbarCollapse.show" class="nav-item">
 				<a class="nav-link " href="#member" onclick="menu('#m_member'); member();" id="m_member">Members</a>
@@ -43,7 +43,6 @@
 </nav>
 
 <div class="container" data-toggle="collapse" data-target="#navbarCollapse.show" style="flex: 1 0 auto;">
-
 	<div class="jumbotron" style="display: none; padding-top: 10px;" id="member">
 		<form class="form-signin" action="javascript:{login()}" name="login_form" id="login-form"
 				style="display: none;">
@@ -234,14 +233,16 @@
 		</div>
 	</div>
 
-	<div class="jumbotron" style="padding-top: 10px;" id="home">
+	<div class="jumbotron" style="padding-top: 10px;" id="plots">
 		<div>
-			<h2 class="tenant" style="float: left;">Places to Live</h2>
-			<h2 class="landlord d-none" style="float: left;">Your Property</h2>
-			<form class="tenant form-inline input-group-sm" style="float: right;">
-				<input class="form-control outline-success" type="search" placeholder="Search...">
+			<h3 class="tenant float-md-left text-center text-md-left">Places to Live</h3>
+			<h3 class="landlord d-none float-md-left text-center text-md-left">Your Property</h3>
+			<form class="tenant form-inline input-group-sm float-md-right text-center">
+
+				<select class="form-control" name="county" id="search_county"></select>
+				<input class="form-control outline-success" type="search" id="search" placeholder="Search...">
 			</form>
-			<form class="landlord d-none form-inline input-group-sm" style="float: right;">
+			<form class="landlord d-none form-inline input-group-sm float-md-right text-center">
 				<button class="btn btn-sm btn-outline-success bg-faded" data-toggle="modal"	data-target="#new_property_modal" title="add a new plot">Add Property
 				</button>
 			</form>
@@ -255,7 +256,7 @@
 							<a href="#"><img class="plot-thumb" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mO8dPv2fwAImAOJMh4kwgAAAABJRU5ErkJggg=="></a>
 						</div>
 						<div class="text-center text-md-left col-sm-12 col-md-8 col-lg-9">
-							<a href="#"><h3>Property Title</h3></a>
+							<a href="#"><h4>Property Title</h4></a>
 							<p class="small">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consequuntur eum illum in minus voluptatibus!</p>
 							<small class="text-muted">Location: town, ward, constituency</small>
 						</div>
@@ -272,6 +273,7 @@
 			</tr>
 			</tfoot>
 		</table>
+
 		<div class="modal fade" tabindex="-1" role="dialog"
 			 aria-hidden="true" id="new_property_modal">
 			<div class="modal-dialog modal-lg">
@@ -283,7 +285,7 @@
 						</button>
 					</div>
 					<div class="modal-body">
-						<form action="" method="post">
+						<form action="javascript:{add_plot();}" name="add_plot" method="post">
 							<div class="form-group">
 								<label for="county">Property Name:</label>
 								<input type="text" name="name" id="prop_name" placeholder="Property Name" required class="form-control">
@@ -291,15 +293,15 @@
 							<h3>Location</h3>
 							<div class="form-group">
 								<label for="county">County:</label>
-								<input type="text" name="county" id="county" placeholder="Enter Your County" required class="form-control">
+								<select name="county" id="county" class="form-control"></select>
 							</div>
 							<div class="form-group">
-								<label for="consti">Constituency:</label>
-								<input type="text" name="Constituency" id="constituency" placeholder="Enter Your Constituency" required class="form-control">
+								<label for="constituency">Constituency:</label>
+								<select name="Constituency" id="constituency" class="form-control"></select>
 							</div>
 							<div class="form-group">
 								<label for="ward">Ward:</label>
-								<input type="text" name="Ward" id="ward" placeholder="Enter Ward" required class="form-control">
+								<select name="Ward" id="ward" class="form-control"></select>
 							</div>
 							<div class="form-group">
 								<label for="town"> Town</label>
@@ -307,17 +309,20 @@
 							</div>
 							<h3>Brief Description</h3>
 							<div class="form-group">
-								<textarea title="" name="description" class="form-control" id="prop_desc" cols="30" rows="10"></textarea>
+								<textarea title="" required name="description" class="form-control" id="prop_desc" cols="30" rows="4"></textarea>
 							</div>
 							<h3>Upload Images </h3>
 							<div class="form-group">
 								<input type="file" name="image" accept="image/*" id="prop_upload" class="form-control">
 							</div>
+							<div id="add_property_errors">
+
+							</div>
 						</form>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-						<button type="button" class="btn btn-outline-success">Post Property</button>
+						<button type="button" class="btn btn-outline-success" onclick="document.forms.add_plot.submit()">Post Property</button>
 					</div>
 				</div>
 			</div>
@@ -327,9 +332,9 @@
 	<div class="jumbotron" style="padding-top: 10px;" id="houses">
 		<div class="row">
 			<div class="col-12">
-				<h2 style="float: left;">House Name</h2>
-				<form class="landlord d-none form-inline input-group-sm" style="float: right;">
-					<button class="btn btn-sm btn-outline-success bg-faded" data-toggle="modal"	data-target="#new_property_modal" title="add a new plot">Add House
+				<h4 class="float-md-left text-center text-md-left">Plot Name</h4>
+				<form class="landlord d-none form-inline input-group-sm float-md-right text-center">
+					<button class="btn btn-sm btn-outline-success bg-faded" data-toggle="modal"	data-target="#new_house_modal" title="add a new house">Add House
 					</button>
 				</form>
 			</div>
@@ -417,9 +422,9 @@
 					</div>
 					<div class="modal-body">
 						<form action="" method="post">
-							<h3>Category</h3>
+							<h5>Category</h5>
 							<div class="form-group">
-								<select name="type" id="category" class="form-control">
+								<select title="" name="type" id="category" class="form-control">
 									<option value="Apartment">Apartment</option>
 									<option value="Mansion">Mansion</option>
 									<option value="Bed Sitter">Bed Sitter</option>
@@ -428,29 +433,20 @@
 									<option value="Two Bedroom">Two Bedroom</option>
 								</select>
 							</div>
-
+							<h5>Payments:</h5>
 							<div class="form-group">
-								<label for="county">County:</label>
-								<input type="text" name="county" id="county" placeholder="Enter Your County" required class="form-control">
+								<label for="county">Monthly Rent:</label>
+								<input type="text" name="monthly_rent" id="monthly_rent" onkeydown="NumbersOnly(event)" placeholder="Monthly Rent" required class="form-control">
 							</div>
 							<div class="form-group">
-								<label for="constituency">Constituency:</label>
-								<input type="text" name="consti" id="consti" placeholder="Enter Your Constituency" required class="form-control">
+								<label for="constituency">Booking Amount:</label>
+								<input type="text" name="booking_amount" id="booking_amount" onkeydown="NumbersOnly(event)" placeholder="Booking Amount" required class="form-control">
 							</div>
-							'description', 'monthly_rent', 'booking_amount', 'plot'
+							<h5>Brief Description</h5>
 							<div class="form-group">
-								<label for="ward">Ward:</label>
-								<input type="text" name="ward" id="ward" placeholder="Enter Ward" required class="form-control">
+								<textarea name="description" title="" class="form-control" id="description" cols="30" rows="10"></textarea>
 							</div>
-							<div class="form-group">
-								<label for="town"> Town</label>
-								<input type="text" name="town" id="town" placeholder="Enter Town " required class="form-control">
-							</div>
-							<h3>Brief Description</h3>
-							<div class="form-group">
-								<textarea name="desc" class="form-control" id="" cols="30" rows="10"></textarea>
-							</div>
-							<h3>Upload Images </h3>
+							<h5>Upload Images </h5>
 							<div class="form-group">
 								<input type="file" name="image" accept="image/*" id="upload" class="form-control">
 							</div>
@@ -524,7 +520,6 @@
         });
     })
 </script>
-<script src="script/ajax.js"></script>
 <script src="script/js.js"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@ if(isset($_POST['debug']) || isset($_GET['debug']))
 
 session_start();
 class Api{
-	private $conn;
+	public $conn;
 
 	// This function creates a database connection that can be used by other functions to fetch data
 	function __construct(){

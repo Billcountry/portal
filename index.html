@@ -285,7 +285,7 @@
 						</button>
 					</div>
 					<div class="modal-body">
-						<form action="javascript:{add_plot();}" name="add_plot" method="post">
+						<form action="javascript:{add_plot();}" enctype="multipart/form-data" name="add_plot" method="post">
 							<div class="form-group">
 								<label for="county">Property Name:</label>
 								<input type="text" name="name" id="prop_name" placeholder="Property Name" required class="form-control">
@@ -332,36 +332,15 @@
 	<div class="jumbotron" style="padding-top: 10px;" id="houses">
 		<div class="row">
 			<div class="col-12">
-				<h4 class="float-md-left text-center text-md-left">Plot Name</h4>
+				<h4 class="float-md-left text-center text-md-left" id="plot_name">Plot Name</h4>
 				<form class="landlord d-none form-inline input-group-sm float-md-right text-center">
 					<button class="btn btn-sm btn-outline-success bg-faded" data-toggle="modal"	data-target="#new_house_modal" title="add a new house">Add House
 					</button>
 				</form>
 			</div>
-			<div id="all_houses" class="col-12 row">
-				<div class="col-12 col-md-6 col-lg-4">
-					<div class="card card-outline-success" style="overflow: visible !important;">
-						<img class="card-img-top" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mO8dPv2fwAImAOJMh4kwgAAAABJRU5ErkJggg==" alt="House Photo">
-						<div class="card-img-overlay white-shadow text-center">
-							<h5 class="card-title">Bedsitter</h5>
-							<h6 class="card-title">
-								<strong>Monthly Rent:</strong><br><span>KES 0.00</span>
-								<br>
-								<strong>Reservation Fee:</strong><br><span>KES 0.00</span>
-							</h6>
-						</div>
-						<div class="card-block text-black">
-							<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-						</div>
-						<div class="card-footer text-center">
-							<a href="#" class="btn btn-sm btn-success tenant">Reserve</a>
-							<span class="checkbox landlord">
-								<label class="text-muted"><input checked class="vacant-toggle" data-width="140" data-height="16"  data-on="Vacant" data-off="Occupied" data-toggle="toggle" data-style="ios" data-onstyle="success" data-offstyle="warning" type="checkbox"></label>
-							</span>
-						</div>
-
-					</div>
-				</div>
+			<p class="col-12" id="plot_description"></p>
+			<div class="col-12" id="house_errors"></div>
+			<div id="all_houses" class="col-12 row card-group">
 				<div class="col-12 col-md-6 col-lg-4">
 					<div class="card card-outline-success" style="overflow: visible !important;">
 						<img class="card-img-top" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mO8dPv2fwAImAOJMh4kwgAAAABJRU5ErkJggg==" alt="House Photo">
@@ -421,7 +400,7 @@
 						</button>
 					</div>
 					<div class="modal-body">
-						<form action="" method="post">
+						<form action="javascript:{add_house();}" name="new_house" enctype="multipart/form-data" method="post">
 							<h5>Category</h5>
 							<div class="form-group">
 								<select title="" name="type" id="category" class="form-control">
@@ -436,25 +415,29 @@
 							<h5>Payments:</h5>
 							<div class="form-group">
 								<label for="county">Monthly Rent:</label>
-								<input type="text" name="monthly_rent" id="monthly_rent" onkeydown="NumbersOnly(event)" placeholder="Monthly Rent" required class="form-control">
+								<input type="text" name="monthly_rent" id="monthly_rent" onkeypress="return NumbersOnly(event)" placeholder="Monthly Rent" required class="form-control">
 							</div>
 							<div class="form-group">
 								<label for="constituency">Booking Amount:</label>
-								<input type="text" name="booking_amount" id="booking_amount" onkeydown="NumbersOnly(event)" placeholder="Booking Amount" required class="form-control">
+								<input type="text" name="booking_amount" id="booking_amount" onkeypress="return NumbersOnly(event)" placeholder="Booking Amount" required class="form-control">
 							</div>
 							<h5>Brief Description</h5>
 							<div class="form-group">
 								<textarea name="description" title="" class="form-control" id="description" cols="30" rows="10"></textarea>
 							</div>
 							<h5>Upload Images </h5>
+							<input type="hidden" name="plot" value="" id="plot_id">
 							<div class="form-group">
 								<input type="file" name="image" accept="image/*" id="upload" class="form-control">
+							</div>
+							<div id="add_house_errors">
+
 							</div>
 						</form>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-						<button type="button" class="btn btn-outline-success">Post Property</button>
+						<button type="button" class="btn btn-outline-success" onclick="document.forms.new_house.submit()">Post Property</button>
 					</div>
 				</div>
 			</div>

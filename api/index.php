@@ -251,10 +251,17 @@ class Api{
         return array("success"=>false, "error"=>$message);
     }
 
-    // Checks whether the plot specified belongs to the logged in landlord
-    function check_plot($plot){
-	    $stmt = $this->conn->prepare("SELECT ID FROM plots WHERE landlord=? AND ID=?");
-	    if($stmt->bind_param("ii", $_SESSION['user_id'], $plot)){
+    // Checks whether the plot OR HOUSE specified belongs to the logged in landlord
+    function check_plot($plot_or_house, $type_house=false){
+	    $stmt = $this->conn->stmt_init();
+	    if($type_house){
+            $stmt->prepare("SELECT plots.ID FROM houses
+                          INNER JOIN plots ON houses.plot = plots.ID
+                          WHERE landlord=? AND houses.ID=?");
+        }else {
+            $stmt->prepare("SELECT ID FROM plots WHERE landlord=? AND ID=?");
+        }
+	    if($stmt->bind_param("ii", $_SESSION['user_id'], $plot_or_house)){
 	        if($stmt->execute()){
 	            if($result = $stmt->get_result()){
 	                if($result->num_rows==1){
@@ -281,7 +288,7 @@ class Api{
                         $photo = "api/".$image['image_name'];
                     else
                         $photo = $image['image_name'];
-                    $stmt = $this->conn->prepare("INSERT INTO houses(type, monthly_rent, booking_amount, description, photo, plot) VALUES (?,?,?,?,?,?,?,?)");
+                    $stmt = $this->conn->prepare("INSERT INTO houses(type, monthly_rent, booking_amount, description, photo, plot) VALUES (?,?,?,?,?,?)");
                     if($stmt->bind_param("sddssi", $_POST['type'], $_POST['monthly_rent'], $_POST['booking_amount'], $_POST['description']
                         ,$photo, $_POST['plot'])){
                         if($stmt->execute()){
@@ -321,10 +328,10 @@ class Api{
             $preped = true;
             if($user_type == 'landlord'){
                 // Get all the houses in that plot
-                $stmt->prepare("SELECT ID type, monthly_rent, booking_amount, description, status, photo FROM houses WHERE plot={$_POST['plot']}");
+                $stmt->prepare("SELECT ID, type, monthly_rent, booking_amount, description, status, photo FROM houses WHERE plot={$_POST['plot']}");
             }else{
                 // Get the vacant houses in the plot
-                $stmt->prepare("SELECT ID type, monthly_rent, booking_amount, description, status, photo FROM houses WHERE plot=? AND status='vacant'");
+                $stmt->prepare("SELECT ID, type, monthly_rent, booking_amount, description, status, photo FROM houses WHERE plot=? AND status='vacant'");
                 if(!$stmt->bind_param('i', $_POST['plot']))
                     $preped = false;
             }
@@ -467,6 +474,47 @@ class Api{
         return array("success"=>false, "error"=>$message);
     }
 
+    function update_status(){
+        $success = false;
+        if(isset($_POST['house_id'], $_POST['status'])){
+            // Check whether the user is logged in
+            if ($this->check_array(['user_id', 'user_type', 'logged_in'], $_SESSION)) {
+                if ($_SESSION['user_type'] == 'landlord' && $this->check_plot($_POST['house_id'], true)) {
+                    if(in_array($_POST['status'], ['vacant', 'booked', 'occupied'])){
+                        $stmt = $this->conn->prepare("UPDATE houses SET status=? WHERE ID=?");
+                        if($stmt->bind_param("si",$_POST['status'],$_POST['house_id'])){
+                            if($stmt->execute()){
+                                if($stmt->affected_rows>0){
+                                    $success = true;
+                                    $message = "Status updated successfully to {$_POST['status']}";
+                                }else{
+                                    $message = "No data was changed";
+                                }
+                            }else{
+                                $message = $stmt->error;
+                            }
+                        }else{
+                            $message = $stmt->error;
+                        }
+                    }else{
+                        $message = "Invalid status, valid:['vacant', 'booked', 'occupied']";
+                    }
+                }else{
+                    $message = "You must be the owner of a plot to change it, login and retry";
+                }
+            }else{
+                $message = "You must be logged in to perform this operation";
+            }
+        }else{
+            $message = "Required data not sent, i.e. [house_id, status]";
+        }
+
+        if($success){
+            return array("success"=>true, "message"=>$message);
+        }
+        return array("success"=>false, "error"=>$message);
+    }
+
     function upload_image($file){
         if(isset($_FILES[$file])) {
             $name = $_FILES[$file]['name'];
@@ -531,6 +579,8 @@ function main(){
                 return $api->create_house();
             case "plots":
                 return $api->plots();
+            case "update_status":
+                return $api->update_status();
             case "houses":
                 return $api->houses();
             default:

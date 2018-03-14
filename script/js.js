@@ -310,8 +310,141 @@ function hide_all() {
     document.querySelector("#houses").style.display = "none";
 }
 
-function open_plot(plot_id) {
+function reserve_house(house_id){
 
+}
+
+function change_status(house_id, status){
+    $.ajax({
+        url: "api/",
+        type: "POST",
+        data: {
+            action: 'update_status',
+            house_id: house_id,
+            status: status
+        },
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                Toast(response.message, TOAST_SHORT);
+            } else {
+                Toast(response.error, TOAST_SHORT);
+            }
+        },
+        error: function (error) {
+            Toast("Unknown error occurred updating status", TOAST_SHORT);
+            console.log(error.responseText);
+        }
+    });
+}
+
+function open_plot(plot_id) {
+    var plot = loaded_plots[plot_id];
+    document.getElementById("plot_name").innerHTML = plot['name'];
+    document.getElementById("plot_id").value = plot['ID'];
+    document.getElementById("plot_description").innerHTML = plot['description'];
+    console.log(plot['name']);
+    $.ajax({
+        url: 'api/',
+        type: 'POST',
+        data: {action:'houses',plot: plot['ID']},
+        dataType: 'json',
+        success: function (response) {
+            if(response.success){
+                var houses = response.houses;
+                hide_all();
+                document.querySelector("#houses").style.display = "block";
+                var houses_list = document.querySelector('#all_houses');
+                Clear(houses_list);
+                for(var i in houses){
+                    // $('#state'+houses[i]["ID"]).bootstrapToggle('render');
+                    var d1 = document.createElement('div');
+                    houses_list.appendChild(d1);
+                    d1.className = "col-12 col-md-6 col-lg-4";
+                    var d2 = document.createElement('div');
+                    d1.appendChild(d2);
+                    d2.className = "card card-outline-success";
+                    var img = document.createElement('img');
+                    d2.appendChild(img);
+                    img.src = houses[i]["photo"];
+                    img.className = "card-img-top";
+                    var d3 = document.createElement("div");
+                    var h5 = document.createElement("h5");
+                    var h6 = document.createElement("h6");
+                    var s1 = document.createElement("strong");
+                    var s2 = document.createElement("strong");
+                    var s3 = document.createElement("span");
+                    var s4 = document.createElement("span");
+                    d2.appendChild(d3);
+                    d3.appendChild(h5);
+                    d3.appendChild(h6);
+                    h5.className = "card-title";
+                    h6.className = "card-title";
+                    d3.className = "card-img-overlay white-shadow text-center";
+                    h5.appendChild(new Text(houses[i]["type"]));
+                    h6.appendChild(s1);
+                    h6.appendChild(document.createElement("br"));
+                    h6.appendChild(s3);
+                    h6.appendChild(document.createElement("br"));
+                    h6.appendChild(s2);
+                    h6.appendChild(document.createElement("br"));
+                    h6.appendChild(s4);
+                    s1.appendChild(new Text("Monthly Rent: "));
+                    s2.appendChild(new Text("Reservation Fee: "));
+                    s3.appendChild(new Text(houses[i]["monthly_rent"]));
+                    s4.appendChild(new Text(houses[i]["booking_amount"]));
+                    var d4 = document.createElement("div");
+                    var d5 = document.createElement("div");
+                    d2.appendChild(d4);
+                    d2.appendChild(d5);
+                    d4.className = "card-block text-black";
+                    d5.className = "card-footer text-center";
+                    var a1 = document.createElement("a");
+                    a1.className = "btn btn-sm btn-success tenant";
+                    a1.href = "#";
+                    a1.setAttribute("onclick", "reserve_house("+houses[i]["ID"]+")");
+                    a1.appendChild(new Text("Reserve"));
+                    d5.appendChild(a1);
+                    var p1 = document.createElement("p");
+                    p1.className = "card-text";
+                    p1.appendChild(new Text(houses[i]["description"]));
+                    d4.appendChild(p1);
+                    var select = document.createElement("select");
+                    var opt1 = document.createElement("option");
+                    var opt2 = document.createElement("option");
+                    var opt3 = document.createElement("option");
+                    opt1.value = "vacant";
+                    opt2.value = "occupied";
+                    opt3.value = "booked";
+                    opt1.appendChild(new Text("Vacant"));
+                    opt2.appendChild(new Text("Occupied"));
+                    opt3.appendChild(new Text("Booked"));
+                    select.appendChild(opt1);
+                    select.appendChild(opt2);
+                    select.appendChild(opt3);
+                    if(houses[i]["status"] === 'vacant')
+                        opt1.setAttribute("selected","selected");
+                    else if(houses[i]["status"] === 'booked')
+                        opt2.setAttribute("selected","selected");
+                    else
+                        opt3.setAttribute("selected","selected");
+                    d5.appendChild(select);
+                    select.className = "form-control landlord";
+                    select.setAttribute("onchange","change_status("+houses[i]["ID"]+", this.value)");
+                    d5.style.zIndex = "500";
+                }
+                // Show controls depending on the user
+                display_controls();
+            }else{
+                Toast(response.error);
+                console.log(response);
+            }
+        },
+        error: function (error) {
+            Toast("Unknown error occurred");
+            console.log(error);
+        }
+    });
 }
 
 function member() {
@@ -401,6 +534,40 @@ var display_controls = function () {
         }
     }
 };
+
+function add_house(){
+    try {
+        var form = document.forms.new_house;
+        // Convert the form to multipart formdata for submission
+        var data = new FormData(form);
+        data.append('action', 'add_house');
+        member();
+        $.ajax({
+            type: "POST",
+            url: "api/?debug",
+            data: data,
+            processData: false,
+            contentType: false,
+            dataType: "json",
+            success: function (response) {
+                if (response.success) {
+                    $('#new_house_modal').modal('hide');
+                    open_plot(document.getElementById("plot_id").value);
+                    Toast(response.message, TOAST_LONG);
+                } else {
+                    Add_error(response.error, "add_house_errors", false);
+                }
+            },
+            error: function (error) {
+                Add_error("Unknown error occurred", "add_house_errors", false);
+                console.log(error);
+            }
+        });
+    }catch(e){
+        console.log(e.message);
+        console.log(e.stackTrace);
+    }
+}
 
 function add_plot(){
     try {

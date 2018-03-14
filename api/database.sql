@@ -69,20 +69,26 @@ CREATE TABLE IF NOT EXISTS houses(
   type VARCHAR(191) NOT NULL , -- The house type, single, one bedroom, bedsitter
   monthly_rent DOUBLE NOT NULL ,
   booking_amount DOUBLE NOT NULL , -- The amount required to book the house
-  description TEXT,status SET('vacant', 'occupied', 'construction', 'maintenance') DEFAULT 'vacant', -- This will be set to vacant if there's an available room
+  description TEXT,status SET('vacant', 'occupied', 'booked') DEFAULT 'vacant', -- This will be set to vacant if there's an available room
   photo TEXT,
   plot INT,
   FOREIGN KEY(plot) REFERENCES plots(ID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE transactions(
+  transaction_no VARCHAR(40) PRIMARY KEY, -- The MPESA transaction ID
+  details TEXT,
+  amount DOUBLE,
+  time_payed DATETIME DEFAULT current_timestamp
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS booking(
   ID INT AUTO_INCREMENT PRIMARY KEY ,
   house INT NOT NULL ,
   tenant INT,
-  amount_paid DOUBLE,
-  reciept_id VARCHAR(191),
-  transaction_details TEXT,
+  reciept_id VARCHAR(40),
   date_booked DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (house) REFERENCES houses(ID),
-  FOREIGN KEY (tenant) REFERENCES tenant(ID)
+  FOREIGN KEY (tenant) REFERENCES tenant(ID),
+  FOREIGN KEY (reciept_id) REFERENCES transactions(transaction_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -11,7 +11,9 @@ class Api{
 
 	// This function creates a database connection that can be used by other functions to fetch data
 	function __construct(){
-		$this->conn = mysqli_connect("localhost", "admin", "password", "rental_system");
+		// $this->conn = mysqli_connect("localhost", "admin", "password", "rental_system");
+		
+		$this->conn = mysqli_connect("localhost", "rentalpo_user", "5trongPass", "rentalpo_db");
 	}
 
 	function check_array($keys, $array){

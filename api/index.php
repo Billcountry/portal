@@ -548,6 +548,62 @@ class Api{
         // Set a default blank image if the image was not sent
         return array("success" => false, "image_name" => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mO8dPv2fwAImAOJMh4kwgAAAABJRU5ErkJggg==");
     }
+
+    // Checks whether a transaction number is valid or already used, or not available
+    function check_trans($transaction_no){
+        $success = false;
+        $stmt = $this->conn->prepare("SELECT ID FROM booking WHERE reciept_id=?");
+        if($stmt->bind_param('s',$transaction_no)){
+            if($stmt->execute()){
+                if($result=$stmt->get_result()){
+                    if($result->num_rows==0){
+                        $stmt->close();
+                        $stmt = $this->conn->prepare("SELECT amount FROM transactions WHERE transaction_no=?");
+                        if($stmt->bind_param('s', $transaction_no)){
+                            if($stmt->execute()){
+                                if($result=$stmt->get_result()){
+                                    If($row=$result->fetch_assoc()){
+                                        return $row['amount'];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $success;
+    }
+
+    function booking_amount($house_id){
+
+    }
+    function booking(){
+        $variables = ['house_id','transaction_no'];
+        $success = false;
+        if($this->check_array($variables, $_POST)){
+            if ($this->check_array(['user_id', 'user_type', 'logged_in'], $_SESSION)) {
+                if($_SESSION['user_type']=='tenant'){
+                    if($this->check_trans($_POST['transaction_no'])){
+
+                    }else{
+                        $message = "Invalid transaction number";
+                    }
+                }else{
+                    $message = "Only tenants can book houses";
+                }
+            }else{
+                $message = "You must be logged in to book a house";
+            }
+        }else{
+            $message = "Provide all the required variables; ['house_id','transaction_no']";
+        }
+
+        if($success){
+            return array("success"=>true, "message"=>$message);
+        }
+        return array("success"=>false, "error"=>$message);
+    }
 }
 
 // This functions checks the action specified by the user and executes the right function from the class api

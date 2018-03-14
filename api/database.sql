@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS booking(
   ID INT AUTO_INCREMENT PRIMARY KEY ,
   house INT NOT NULL ,
   tenant INT,
-  reciept_id VARCHAR(40),
+  reciept_id VARCHAR(40) UNIQUE,
   date_booked DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (house) REFERENCES houses(ID),
   FOREIGN KEY (tenant) REFERENCES tenant(ID),

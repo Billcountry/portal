@@ -347,8 +347,8 @@ function open_plot(plot_id) {
     var plot = loaded_plots[plot_id];
     document.getElementById("plot_name").innerHTML = plot['name'];
     document.getElementById("plot_id").value = plot['ID'];
+    document.getElementById("plot_id_2").value = plot_id;
     document.getElementById("plot_description").innerHTML = plot['description'];
-    console.log(plot['name']);
     $.ajax({
         url: 'api/',
         type: 'POST',
@@ -546,7 +546,6 @@ function add_house(){
         // Convert the form to multipart formdata for submission
         var data = new FormData(form);
         data.append('action', 'add_house');
-        member();
         $.ajax({
             type: "POST",
             url: "api/?debug",
@@ -557,7 +556,8 @@ function add_house(){
             success: function (response) {
                 if (response.success) {
                     $('#new_house_modal').modal('hide');
-                    open_plot(document.getElementById("plot_id").value);
+                    open_plot(document.getElementById("plot_id_2").value);
+                    form.reset();
                     Toast(response.message, TOAST_LONG);
                 } else {
                     Add_error(response.error, "add_house_errors", false);
@@ -580,7 +580,6 @@ function add_plot(){
         // Convert the form to multipart formdata for submission
         var data = new FormData(form);
         data.append('action', 'add_plot');
-        member();
         $.ajax({
             type: "POST",
             url: "api/",

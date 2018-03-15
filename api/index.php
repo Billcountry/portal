@@ -687,10 +687,7 @@ function main(){
     }
 }
 
-// Check whether it's running as the main or inluded file
-if (!debug_backtrace()) {
 // Tell the user's browser that this api returns JSON formatted content
-    header('Content-Type: text/json');
+header('Content-Type: text/json');
 // Convert the array produced from main to JSON
-    echo json_encode(main(), JSON_PRETTY_PRINT)
-}
+echo json_encode(main(), JSON_PRETTY_PRINT);

@@ -575,17 +575,52 @@ class Api{
         return $success;
     }
 
-    function booking_amount($house_id){
-
+    // Checks whether the house is vacant and returns the house profile
+    function booking_details($house_id){
+        $stmt = $this->conn->prepare("SELECT type, booking_amount, name, First_Name,  Last_Name, Email FROM houses 
+                                    INNER JOIN plots ON houses.plot = plots.ID
+                                    INNER JOIN landlord ON plots.landlord = landlord.ID
+                                    WHERE houses.ID=? AND status='vacant' AND approved=TRUE");
+        if($stmt->bind_param('i',$house_id)){
+            if($stmt->execute()){
+                if($result=$stmt->get_result()){
+                    if($row=$result->fetch_assoc()){
+                        return $row;
+                    }
+                }
+            }
+        }
+        return false;
     }
+
     function booking(){
         $variables = ['house_id','transaction_no'];
         $success = false;
         if($this->check_array($variables, $_POST)){
             if ($this->check_array(['user_id', 'user_type', 'logged_in'], $_SESSION)) {
                 if($_SESSION['user_type']=='tenant'){
-                    if($this->check_trans($_POST['transaction_no'])){
-
+                    if($amount=$this->check_trans($_POST['transaction_no']!=false)){
+                        if($details=$this->booking_details($_POST['house_id'])!=false){
+                            // type, booking_amount, name, First_Name,  Last_Name, Email
+                            if($amount>=$details['booking_amount']){
+                                // Proceed to book the house.
+                                $trans = $this->conn->escape_string($_POST['transaction_no']);
+                                $stmt = $this->conn->prepare("INSERT INTO booking (house, tenant, reciept_id) VALUES ({$_POST['house_id']},{$_SESSION['user_id']},'$trans')");
+                                if($stmt->execute()){
+                                    $stmt->close();
+                                    $stmt = $this->conn->prepare("UPDATE houses SET status='booked' WHERE ID={$_POST['house_id']}");
+                                    $stmt->execute();
+                                    $success = true;
+                                    $message = "You have successfully booked a {$details['type']} house at {$details['name']}. {$details['First_Name']} {$details['Last_Name']}({$details['Email']}) will be in contact for further arrangements";
+                                }else{
+                                    $message = $stmt->error;
+                                }
+                            }else{
+                                $message = "The amount paid is less than the booking amount";
+                            }
+                        }else{
+                            $message = "House already booked";
+                        }
                     }else{
                         $message = "Invalid transaction number";
                     }
@@ -641,6 +676,8 @@ function main(){
                 return $api->update_status();
             case "houses":
                 return $api->houses();
+            case "booking":
+                return $api->booking();
             default:
                 return array("success" => false, "error" => "Unknown action specified, please retry");
         }

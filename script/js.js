@@ -115,28 +115,6 @@ function Add_success(message, location, append) {
     }
 }
 
-var working = 0;
-
-function add_job(desc) {
-    var loader = document.querySelector("#loader");
-    var span = document.createElement("span");
-    span.appendChild(document.createTextNode(desc));
-    loader.appendChild(span);
-    working += 1;
-    loader.style.visibility = "visible";
-    return loader.childNodes.length - 1;
-}
-
-function remove_job(id) {
-    var loader = document.querySelector("#loader");
-    var span = loader.childNodes[id];
-    span.style.display = "none";
-    working -= 1;
-    if (working === 0) {
-        loader.style.visibility = "hidden";
-    }
-}
-
 function Clear(location) {
     while (location.hasChildNodes()) {
         location.removeChild(location.lastChild);
@@ -310,8 +288,35 @@ function hide_all() {
     document.querySelector("#houses").style.display = "none";
 }
 
-function reserve_house(house_id){
+function reserve_house(house_id, amount){
+    document.querySelector('#house_id').value = house_id;
+    document.querySelector('#to_pay').innerHTML = amount;
+    $('#booking_modal').modal('show')
+}
 
+function submit_booking() {
+    var form = document.forms.booking_form;
+    // Convert the form to multipart formdata for submission
+    var data = new FormData(form);
+    $.ajax({
+        type: "POST",
+        url: "api/",
+        data: data,
+        processData: false,
+        contentType: false,
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                Toast(response.message, 20);
+            } else {
+                Add_error(response.error, "booking_errors", false);
+            }
+        },
+        error: function (error) {
+            Add_error("Unknown error occurred", "booking_errors", false);
+            console.log(error);
+        }
+    });
 }
 
 function change_status(house_id, status){
@@ -402,7 +407,7 @@ function open_plot(plot_id) {
                     var a1 = document.createElement("a");
                     a1.className = "btn btn-sm btn-success tenant";
                     a1.href = "#";
-                    a1.setAttribute("onclick", "reserve_house("+houses[i]["ID"]+")");
+                    a1.setAttribute("onclick", "reserve_house("+houses[i]["ID"]+","+houses[i]["booking_amount"]+")");
                     a1.appendChild(new Text("Reserve"));
                     d5.appendChild(a1);
                     var p1 = document.createElement("p");

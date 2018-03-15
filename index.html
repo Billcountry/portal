@@ -329,16 +329,37 @@
 		</div>
 	</div>
 
-	<div class="">
-		<ul>
-			<li>Go to M-PESA Menu on your phone</li>
-			<li>Select Pay Bill (may be under the Lipa Na M-Pesa)</li>
-			<li>Enter Business Number - <strong>961700</strong></li>
-			<li>Enter Account Number - <strong>12850</strong></li>
-			<li>Enter Amount - <strong id="to_pay"></strong></li>
-			<li>Enter your M-PESA PIN</li>
-			<li>Send and wait for SMS receipt from LIPISHA</li>
-		</ul>
+	<div class="modal fade" id="booking_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Book House</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form class="form-signin" action="javascript:{submit_booking()}" name="booking_form">
+						<ul>
+							<li>Go to M-PESA Menu on your phone</li>
+							<li>Select Pay Bill (may be under the Lipa Na M-Pesa)</li>
+							<li>Enter Business Number - <strong>961700</strong></li>
+							<li>Enter Account Number - <strong>12850</strong></li>
+							<li>Enter Amount - <strong id="to_pay"></strong></li>
+							<li>Enter your M-PESA PIN</li>
+							<li>Send and wait for SMS receipt from LIPISHA</li>
+						</ul>
+						<div id="booking_errors"></div>
+						<label for="transaction_no" class="">Transaction Number(<small>Your M-PESA transaction number eg MCF0A7R66Y</small>)</label>
+						<input type="hidden" name="house_id" value="" id="house_id">
+						<input type="hidden" name="action" value="booking">
+						<input type="text" name="transaction_no" id="transaction_no" class="form-control text-success"
+							   placeholder="Transaction No." required>
+						<input class="btn btn-outline-success btn-block" type="submit" value="Submit Details">
+					</form>
+				</div>
+			</div>
+		</div>
 	</div>
 	<div class="jumbotron" style="padding-top: 10px;" id="houses">
 		<div class="row">

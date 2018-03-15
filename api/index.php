@@ -599,7 +599,7 @@ class Api{
         if($this->check_array($variables, $_POST)){
             if ($this->check_array(['user_id', 'user_type', 'logged_in'], $_SESSION)) {
                 if($_SESSION['user_type']=='tenant'){
-                    if($amount=$this->check_trans($_POST['transaction_no']!=false)){
+                    if($amount=$this->check_trans($_POST['transaction_no'])!=false){
                         if($details=$this->booking_details($_POST['house_id'])!=false){
                             // type, booking_amount, name, First_Name,  Last_Name, Email
                             if($amount>=$details['booking_amount']){

@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS plots(
   Town         VARCHAR(191) NOT NULL,
   photo TEXT, -- This will have links to the photos of the plot
   approved BOOLEAN DEFAULT FALSE,
+  state SET('enabled', 'disabled') DEFAULT 'enabled',
   FOREIGN KEY(landlord) REFERENCES landlord(ID),
   FOREIGN KEY(county) REFERENCES counties(id),
   FOREIGN KEY(Ward) REFERENCES wards(id),
@@ -69,9 +70,10 @@ CREATE TABLE IF NOT EXISTS houses(
   type VARCHAR(191) NOT NULL , -- The house type, single, one bedroom, bedsitter
   monthly_rent DOUBLE NOT NULL ,
   booking_amount DOUBLE NOT NULL , -- The amount required to book the house
-  description TEXT,status SET('vacant', 'occupied', 'booked') DEFAULT 'vacant', -- This will be set to vacant if there's an available room
+  description TEXT,status SET('vacant', 'occupied', 'booked','disabled') DEFAULT 'vacant', -- This will be set to vacant if there's an available room
   photo TEXT,
   plot INT,
+  booked INT DEFAULT 0, -- The id of the user who booked the plot
   FOREIGN KEY(plot) REFERENCES plots(ID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

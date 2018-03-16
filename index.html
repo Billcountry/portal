@@ -366,13 +366,15 @@
 			<div class="col-12">
 				<h4 class="float-md-left text-center text-md-left" id="plot_name">Plot Name</h4>
 				<form class="landlord d-none form-inline input-group-sm float-md-right text-center">
+					<button class="btn btn-sm btn-outline-danger bg-faded" data-toggle="modal"	data-target="#remove_property_modal" title="Disable Plot">Disable Property
+					</button>
 					<button class="btn btn-sm btn-outline-success bg-faded" data-toggle="modal"	data-target="#new_house_modal" title="add a new house">Add House
 					</button>
 				</form>
 			</div>
 			<p class="col-12" id="plot_description"></p>
 			<div class="col-12" id="house_errors"></div>
-			<div id="all_houses" class="col-12 row card-group">
+			<div id="all_houses" class="col-12 row card-deck">
 				<div class="col-12 col-md-6 col-lg-4">
 					<div class="card card-outline-success" style="overflow: visible !important;">
 						<img class="card-img-top" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mO8dPv2fwAImAOJMh4kwgAAAABJRU5ErkJggg==" alt="House Photo">
@@ -421,6 +423,7 @@
 				</div>
 			</div>
 		</div>
+
 		<div class="modal fade" tabindex="-1" role="dialog"
 			 aria-hidden="true" id="new_house_modal">
 			<div class="modal-dialog modal-lg">
@@ -471,6 +474,28 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 						<button type="button" class="btn btn-outline-success" onclick="document.forms.new_house.submit()">Post Property</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" tabindex="-1" role="dialog"
+			 aria-hidden="true" id="remove_property_modal">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Disable Property Modal</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true" class="material material-close-circle-o"></span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<p>
+							This will delete the property from your view and the views of the tenants.<br>
+							It can be later enabled by contacting the admin. <br>
+							We do not permanently delete the properties for the purpose of financial record keeping.
+						</p>
+						<div><button class="btn btn-sm btn-outline-danger bg-faded">Disable Plot</button></div>
 					</div>
 				</div>
 			</div>

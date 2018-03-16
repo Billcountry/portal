@@ -322,10 +322,13 @@ class Api{
         if(isset($_POST['plot'])){
             // Determine whether to present the houses to a landlord or tenant
             $user_type = 'tenant';
-            if(isset($_SESSION['logged_in'], $_SESSION['user_id']))
-                if($_SESSION['user_type'] == 'landlord')
-                    if($this->check_plot($_POST['plot']))
+            $user_id = -1;
+            if(isset($_SESSION['logged_in'], $_SESSION['user_id'])) {
+                if ($_SESSION['user_type'] == 'landlord')
+                    if ($this->check_plot($_POST['plot']))
                         $user_type = 'landlord';
+                $user_id = $_SESSION['user_id'];
+            }
             $stmt = $this->conn->stmt_init();
             $preped = true;
             if($user_type == 'landlord'){
@@ -333,7 +336,7 @@ class Api{
                 $stmt->prepare("SELECT ID, type, monthly_rent, booking_amount, description, status, photo FROM houses WHERE plot={$_POST['plot']}");
             }else{
                 // Get the vacant houses in the plot
-                $stmt->prepare("SELECT ID, type, monthly_rent, booking_amount, description, status, photo FROM houses WHERE plot=? AND status='vacant'");
+                $stmt->prepare("SELECT ID, type, monthly_rent, booking_amount, description, status, photo FROM houses WHERE plot=? AND (status='vacant' OR (status='booked' AND booked=$user_id))");
                 if(!$stmt->bind_param('i', $_POST['plot']))
                     $preped = false;
             }
@@ -376,16 +379,18 @@ class Api{
             // Escape the string to prevent sql injection. Automatically done using bind params
             $county = $this->conn->escape_string($_GET['county']);
         }
-        if(isset($_SESSION['logged_in'], $_SESSION['user_id']))
-            if($_SESSION['user_type'] == 'landlord')
+        $user_id = -1;
+        if(isset($_SESSION['logged_in'], $_SESSION['user_id'])) {
+            if ($_SESSION['user_type'] == 'landlord')
                 $user_type = 'landlord';
+            $user_id = $_SESSION['user_id'];
+        }
         if($user_type=='landlord'){
             $stmt->prepare("SELECT plots.ID, name, description, counties.County, SubCounty AS Constituency, wards.Ward, Town, photo FROM plots
                 INNER JOIN counties ON plots.county = counties.id
                 INNER JOIN wards ON plots.Ward = wards.id
                 INNER JOIN sub_counties ON plots.Constituency = sub_counties.id
-                 WHERE landlord={$_SESSION['user_id']}
-                
+                 WHERE landlord={$_SESSION['user_id']} AND state='enabled'
                 ");
         }else{
             // Only select approved plots that have vacant houses
@@ -397,7 +402,7 @@ class Api{
                 INNER JOIN counties ON plots.county = counties.id
                 INNER JOIN wards ON plots.Ward = wards.id
                 INNER JOIN sub_counties ON plots.Constituency = sub_counties.id
-                WHERE status='vacant' AND approved=TRUE AND counties.County LIKE '%$county%' AND 
+                WHERE (status='vacant' OR (status='booked' AND booked=$user_id)) AND state='enabled' AND approved=TRUE AND counties.County LIKE '%$county%' AND 
                 (plots.description LIKE '%$search%' OR houses.description LIKE '%$search%' 
                 OR name LIKE '%$search%' OR Town LIKE '%$search%' OR wards.Ward LIKE '%$search%' OR sub_counties.SubCounty LIKE '%$search%')
             ");
@@ -599,8 +604,10 @@ class Api{
         if($this->check_array($variables, $_POST)){
             if ($this->check_array(['user_id', 'user_type', 'logged_in'], $_SESSION)) {
                 if($_SESSION['user_type']=='tenant'){
-                    if($amount=$this->check_trans($_POST['transaction_no'])!=false){
-                        if($details=$this->booking_details($_POST['house_id'])!=false){
+                    $amount=$this->check_trans($_POST['transaction_no']);
+                    if($amount!==false){
+                        $details=$this->booking_details($_POST['house_id']);
+                        if($details!==false){
                             // type, booking_amount, name, First_Name,  Last_Name, Email
                             if($amount>=$details['booking_amount']){
                                 // Proceed to book the house.
@@ -608,10 +615,11 @@ class Api{
                                 $stmt = $this->conn->prepare("INSERT INTO booking (house, tenant, reciept_id) VALUES ({$_POST['house_id']},{$_SESSION['user_id']},'$trans')");
                                 if($stmt->execute()){
                                     $stmt->close();
-                                    $stmt = $this->conn->prepare("UPDATE houses SET status='booked' WHERE ID={$_POST['house_id']}");
+                                    $user_id = $_SESSION['user_id'];
+                                    $stmt = $this->conn->prepare("UPDATE houses SET status='booked', booked=$user_id WHERE ID={$_POST['house_id']}");
                                     $stmt->execute();
                                     $success = true;
-                                    $message = "You have successfully booked a {$details['type']} house at {$details['name']}. {$details['First_Name']} {$details['Last_Name']}({$details['Email']}) will be in contact for further arrangements";
+                                    $message = "You have successfully booked a ".$details['type']." house at ".$details['name'].". ".$details['First_Name']." ".$details['Last_Name']."(".$details['Email'].") will be in contact for further arrangements";
                                 }else{
                                     $message = $stmt->error;
                                 }

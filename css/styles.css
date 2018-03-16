@@ -167,3 +167,12 @@ a:hover{
 .white-shadow{
     text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.6);
 }
+
+@media (min-width:34em) {
+    .card-deck > .card
+    {
+        width: 29%;
+        flex-wrap: wrap;
+        flex: initial;
+    }
+}

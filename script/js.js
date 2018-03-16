@@ -307,7 +307,10 @@ function submit_booking() {
         dataType: "json",
         success: function (response) {
             if (response.success) {
-                Toast(response.message, 20);
+                Toast(response.message, 30);
+                $('#booking_modal').modal('hide');
+                form.reset();
+                Clear(document.querySelector("#booking_errors"));
             } else {
                 Add_error(response.error, "booking_errors", false);
             }
@@ -409,7 +412,11 @@ function open_plot(plot_id) {
                     a1.href = "#";
                     a1.setAttribute("onclick", "reserve_house("+houses[i]["ID"]+","+houses[i]["booking_amount"]+")");
                     a1.appendChild(new Text("Reserve"));
-                    d5.appendChild(a1);
+                    if(houses[i]["status"]==="booked"){
+                        d5.appendChild(new Text("You have reserved this house"));
+                    }else {
+                        d5.appendChild(a1);
+                    }
                     var p1 = document.createElement("p");
                     p1.className = "card-text";
                     p1.appendChild(new Text(houses[i]["description"]));
@@ -427,12 +434,7 @@ function open_plot(plot_id) {
                     select.appendChild(opt1);
                     select.appendChild(opt2);
                     select.appendChild(opt3);
-                    if(houses[i]["status"] === 'vacant')
-                        opt1.setAttribute("selected","selected");
-                    else if(houses[i]["status"] === 'booked')
-                        opt2.setAttribute("selected","selected");
-                    else
-                        opt3.setAttribute("selected","selected");
+                    select.value = houses[i]["status"];
                     d5.appendChild(select);
                     select.className = "form-control landlord";
                     select.setAttribute("onchange","change_status("+houses[i]["ID"]+", this.value)");

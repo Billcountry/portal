@@ -137,9 +137,14 @@
 				<ul class="nav nav-tabs card-header-tabs" role="tablist">
 					<li class="nav-item"><a class="nav-link text-success active" href="#tab_profile" data-toggle="tab"
 											role="tab">Profile</a></li>
+					<li class="nav-item"><a class="nav-link text-success" href="#tab_booking" data-toggle="tab"
+											role="tab">Bookings</a></li>
 				</ul>
 			</div>
 			<div class="card-block tab-content">
+				<div class="tab-pane fade show bg-faded" id="tab_booking" role="tabpanel">
+
+				</div>
 				<form class="tab-pane fade show active bg-faded" name="user_dash" id="tab_profile" role="tabpanel">
 					<p class="small">Editing the details below automatically updates them.</p>
 					<div class="form-group row">
@@ -247,7 +252,6 @@
 				</button>
 			</form>
 		</div>
-		
 		<table class="table table-striped" id="plots_list" style="display: table;">
 			<tbody id="all_plots">
 				<tr>
@@ -257,7 +261,8 @@
 						</div>
 						<div class="text-center text-md-left col-sm-12 col-md-8 col-lg-9">
 							<a href="#"><h4>Property Title</h4></a>
-							<p class="small">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consequuntur eum illum in minus voluptatibus!</p>
+							<p class="small">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consequuntur eum illum in minus voluptatibus!
+							</p>
 							<small class="text-muted">Location: town, ward, constituency</small>
 						</div>
 					</td>
@@ -273,7 +278,6 @@
 			</tr>
 			</tfoot>
 		</table>
-
 		<div class="modal fade" tabindex="-1" role="dialog"
 			 aria-hidden="true" id="new_property_modal">
 			<div class="modal-dialog modal-lg">
@@ -484,7 +488,7 @@
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title">Disable Property Modal</h5>
+						<h5 class="modal-title">Disable Property</h5>
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true" class="material material-close-circle-o"></span>
 						</button>
@@ -495,7 +499,10 @@
 							It can be later enabled by contacting the admin. <br>
 							We do not permanently delete the properties for the purpose of financial record keeping.
 						</p>
-						<div><button class="btn btn-sm btn-outline-danger bg-faded">Disable Plot</button></div>
+						<div id="remove_error">
+
+						</div>
+						<div class="text-center"><button onclick="disable_plot()" class="btn btn-sm btn-outline-danger bg-faded">Disable Plot</button></div>
 					</div>
 				</div>
 			</div>
@@ -510,7 +517,9 @@
 		<div class="col-md-6 col-12">
 			<h5 class="text-success">Rentals Portal</h5>
 			<blockquote class="blockquote">
-				<p class="small">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iste tempore, velit.</p>
+				<p class="small">
+				Rentals Portal is a place where a house owner can post the advertisement of their house and house seeker can search for the house that meet their requirement and pay some amount of money to reserve the houses. This project focuses on advertising for houses in Kenya only.
+				</p>
 			</blockquote>
 		</div>
 		<div class="col-md-6 col-12" style="border-left: 1px solid #dddddd;">

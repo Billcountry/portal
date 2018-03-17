@@ -317,6 +317,59 @@ class Api{
         return array("success"=>false, "error"=>$message);
     }
 
+    function booking_history(){
+        $success = false;
+
+        if(isset($_SESSION['logged_in'], $_SESSION['user_id'])) {
+            $user_id = $_SESSION['user_id'];
+            $stmt = $this->conn->stmt_init();
+            if ($_SESSION['user_type'] == 'landlord') {
+                $stmt->prepare("SELECT name as 'Property', 
+                              type as 'House Type', tenant.First_Name as 'First Name', 
+                              tenant.Last_Name as 'Last Name', tenant.Email as 'Email',
+                              amount as 'Amount Paid', reciept_id AS 'Transaction No',
+                              date_booked as 'Booked On' FROM booking
+                              INNER JOIN houses ON booking.house = houses.ID
+                              INNER JOIN plots ON houses.plot = plots.ID
+                              INNER JOIN tenant ON booking.tenant = tenant.ID
+                              INNER JOIN landlord ON plots.landlord = landlord.ID
+                              INNER JOIN transactions ON booking.reciept_id = transactions.transaction_no
+                              WHERE landlord=$user_id");
+            }else{
+                $stmt->prepare("SELECT name as 'Property', 
+                              type as 'House Type', landlord.First_Name as 'First Name', 
+                              landlord.Last_Name as 'Last Name', landlord.Email as 'Email',
+                              amount as 'Amount Paid', reciept_id AS 'Transaction No',
+                              date_booked as 'Booked On' FROM booking
+                              INNER JOIN houses ON booking.house = houses.ID
+                              INNER JOIN plots ON houses.plot = plots.ID
+                              INNER JOIN landlord ON plots.landlord = landlord.ID
+                              INNER JOIN transactions ON booking.reciept_id = transactions.transaction_no
+                              WHERE tenant=$user_id");
+            }
+            if($stmt->execute()){
+                if($result=$stmt->get_result()){
+                    $message = [];
+                    $success = true;
+                    while($row=$result->fetch_assoc()){
+                        array_push($message, $row);
+                    }
+                }else{
+                    $message = $stmt->error;
+                }
+            }else{
+                $message = $stmt->error;
+            }
+        }else{
+            $message = "You must be logged in to view booking history";
+        }
+
+        if($success){
+            return array("success"=>true, "data"=>$message);
+        }
+        return array("success"=>false, "error"=>$message);
+    }
+
     function houses(){
         $success = false;
         if(isset($_POST['plot'])){
@@ -477,6 +530,42 @@ class Api{
 
         if($success){
             return array("success"=>true, "location"=>$message);
+        }
+        return array("success"=>false, "error"=>$message);
+    }
+
+    function disable_plot(){
+        $success = false;
+        if(isset($_POST['plot'])) {
+            if (isset($_SESSION['logged_in'], $_SESSION['user_id'])) {
+                if ($_SESSION['user_type'] == 'landlord') {
+                    if ($this->check_plot($_POST['plot'])) {
+                        $plot_id = $_POST['plot'];
+                        $stmt = $this->conn->prepare("UPDATE plots SET state='disabled' WHERE ID=$plot_id");
+                        if($stmt->execute()){
+                            $success = true;
+                            if($stmt->affected_rows>0){
+                                $message = "Status updated successfully";
+                            }else{
+                                $message = "No changes have been made to the database";
+                            }
+                        }else{
+                            $message = $stmt->error;
+                        }
+                    }else{
+                        $message = "Only the owner of the property can disable it";
+                    }
+                }else{
+                    $message = "Only a landlord can disable a plot";
+                }
+            }else{
+                $message = "You must be logged in to disable a property";
+            }
+        }else{
+            $message = "Required variable ['plot'] is missing";
+        }
+        if($success){
+            return array("success"=>true, "message"=>$message);
         }
         return array("success"=>false, "error"=>$message);
     }
@@ -676,6 +765,8 @@ function main(){
                 return $api->add_user();
             case "add_plot":
                 return $api->create_property();
+            case "disable_plot":
+                return $api->disable_plot();
             case "add_house":
                 return $api->create_house();
             case "plots":
@@ -686,6 +777,8 @@ function main(){
                 return $api->houses();
             case "booking":
                 return $api->booking();
+            case "booking_history":
+                return $api->booking_history();
             default:
                 return array("success" => false, "error" => "Unknown action specified, please retry");
         }

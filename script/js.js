@@ -346,6 +346,82 @@ function change_status(house_id, status){
     });
 }
 
+function disable_plot(){
+    var plot = document.querySelector("#plot_id").value;
+    $.ajax({
+        url: 'api/',
+        type: 'POST',
+        data: {
+            action: 'disable_plot',
+            plot: plot
+        },
+        dataType: 'json',
+        success: function (response) {
+            if(response.success){
+                Toast(response.message);
+                $('#remove_property_modal').modal('hide');
+                plots();
+            }else{
+                Add_error(response.error,'remove_error',false);
+            }
+        },
+        error: function (error) {
+            console.log(error);
+            Add_error("An unknown error occurred, please retry",'remove_error',false);
+        }
+    });
+}
+
+function fetch_bookings(){
+    $.ajax({
+        url: 'api/?action=booking_history',
+        dataType: 'json',
+        success: function (response) {
+            var container = document.querySelector('#tab_booking');
+            Clear(container);
+            if(response.success){
+                if(response.data.length>0) {
+                    container.appendChild(gen_table(response.data));
+                }else{
+                    Add_success("No booking data found for your account in the database", 'tab_booking', false);
+                }
+            }else{
+                Add_error(response.error, 'tab_booking', false);
+            }
+        },
+        error: function (error) {
+            console.log(error);
+            Add_error("Unknown error occurred.", 'tab_booking', false);
+        }
+    });
+}
+
+var gen_table = function(data_out){
+    var headers = Object.keys(data_out[0]);
+    var table = document.createElement('table');
+    table.classList.add('table');
+
+    var tr = document.createElement('tr');
+    var td;
+
+    for(var loc in headers){
+        td = document.createElement('th');
+        td.appendChild(new Text(headers[loc]));
+        tr.appendChild(td);
+    }
+    table.appendChild(tr);
+    for (var i in data_out){
+        tr = document.createElement('tr');
+        for (var x in headers){
+            td = document.createElement('td');
+            td.appendChild(new Text(data_out[i][headers[x]]));
+            tr.appendChild(td);
+        }
+        table.appendChild(tr);
+    }
+    return table;
+};
+
 function open_plot(plot_id) {
     var plot = loaded_plots[plot_id];
     document.getElementById("plot_name").innerHTML = plot['name'];
@@ -480,6 +556,7 @@ function member() {
     } else if (memberstate === "normal") {
         // update profile and display it
         personal_profile();
+        fetch_bookings();
         document.querySelector("#registration-form").style.display = "none";
         document.querySelector("#login-form").style.display = "none";
         document.querySelector("#reset-password").style.display = "none";
@@ -628,10 +705,10 @@ function plots() {
         dataType: 'json',
         success: function (response) {
             if(response.success){
+                var plots_list = document.querySelector("#all_plots");
+                Clear(plots_list);
                 if(response.plots.length > 0){
                     loaded_plots = response.plots;
-                    var plots_list = document.querySelector("#all_plots");
-                    Clear(plots_list);
                     for(var i in loaded_plots){
                         var row = document.createElement("tr");
                         var cell = document.createElement("td");
